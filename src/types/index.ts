@@ -58,6 +58,8 @@ export interface Rental {
   totalAmount: number;
   status: 'active' | 'completed' | 'cancelled';
   depositAmount?: number;
+  hasDiscount?: boolean;
+  originalAmount?: number;
   notes?: string;
   deliveryAddress?: string;
   createdAt: string;

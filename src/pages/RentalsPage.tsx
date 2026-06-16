@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { firestoreService } from '../services/firestoreService';
 import { Rental, Machine, Client } from '../types';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { maskDate, getCurrentDateFormatted } from '../utils/masks';
+import { maskDate, maskCurrency, getCurrentDateFormatted } from '../utils/masks';
 
 const parseDateBR = (dateBR: string): Date => {
   const [day, month, year] = dateBR.split('/').map(Number);
@@ -36,6 +36,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     endDate: '',
     notes: '',
   });
+  const [offerDiscount, setOfferDiscount] = useState(false);
+  const [customAmount, setCustomAmount] = useState('');
 
   const loadData = async () => {
     try {
@@ -59,6 +61,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
   const openAddForm = () => {
     setEditingRental(null);
     setFormData({ clientId: '', machineId: '', startDate: getCurrentDateFormatted(), endDate: '', notes: '' });
+    setOfferDiscount(false);
+    setCustomAmount('');
     setIsFormOpen(true);
   };
 
@@ -71,6 +75,10 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
       endDate: rental.endDate,
       notes: rental.notes || '',
     });
+    setOfferDiscount(!!rental.hasDiscount);
+    setCustomAmount(rental.hasDiscount && rental.originalAmount !== rental.totalAmount
+      ? `R$ ${rental.totalAmount.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+      : '');
     setIsFormOpen(true);
   };
 
@@ -83,28 +91,32 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     if (!machine && !editingRental) { setSubmitting(false); return; }
 
     const days = calcDaysLocal(formData.startDate, formData.endDate);
-    const totalAmount = days * ((machine as any)?.dailyRate || 0);
+    const calculatedAmount = days * ((machine as any)?.dailyRate || 0);
+    const totalAmount = (offerDiscount && customAmount)
+      ? parseFloat(customAmount.replace(/\D/g, '')) / 100
+      : calculatedAmount;
+
+    const rentalData: any = {
+      clientId: formData.clientId,
+      machineId: formData.machineId,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      totalAmount,
+      notes: formData.notes,
+      hasDiscount: offerDiscount && totalAmount !== calculatedAmount,
+      originalAmount: calculatedAmount,
+    };
 
     if (editingRental) {
       await firestoreService.updateRental({
         id: editingRental.id,
-        clientId: formData.clientId,
-        machineId: formData.machineId,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        totalAmount,
-        notes: formData.notes,
+        ...rentalData,
       });
       setFeedback({ message: 'Locação atualizada com sucesso!', type: 'success' });
     } else {
       await firestoreService.addRental({
-        clientId: formData.clientId,
-        machineId: formData.machineId,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+        ...rentalData,
         status: 'active',
-        totalAmount,
-        notes: formData.notes,
       });
       setFeedback({ message: 'Locação cadastrada com sucesso!', type: 'success' });
     }
@@ -178,6 +190,29 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
               <input type="text" placeholder="Data Fim (DD/MM/AAAA)" className="input-base" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: maskDate(e.target.value) })} required />
             </div>
             <textarea placeholder="Observações" className="input-base" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
+
+            {formData.machineId && formData.startDate && formData.endDate && (
+              <div className="bg-tertiary-100 dark:bg-secondary-700 p-4 rounded-lg space-y-3">
+                <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                  Valor calculado: <strong>R$ {(calcDaysLocal(formData.startDate, formData.endDate) * (machines.find(m => m.id === formData.machineId)?.dailyRate || 0)).toFixed(2)}</strong>
+                  {' '}({calcDaysLocal(formData.startDate, formData.endDate)} dias x R$ {machines.find(m => m.id === formData.machineId)?.dailyRate?.toFixed(2) || '0.00'}/dia)
+                </div>
+                <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300 cursor-pointer">
+                  <input type="checkbox" checked={offerDiscount} onChange={(e) => setOfferDiscount(e.target.checked)} className="rounded border-neutral-400" />
+                  Oferecer Desconto
+                </label>
+                {offerDiscount && (
+                  <input
+                    type="text"
+                    placeholder="R$ 0,00"
+                    className="input-base"
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value.length > customAmount.length ? maskCurrency(e.target.value) : e.target.value)}
+                  />
+                )}
+              </div>
+            )}
+
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => { setIsFormOpen(false); setEditingRental(null); }} className="btn-ghost">Cancelar</button>
               <button type="submit" className="btn-primary" disabled={submitting}>{submitting ? 'Salvando...' : editingRental ? 'Atualizar' : 'Salvar'}</button>
