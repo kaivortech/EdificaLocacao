@@ -13,12 +13,17 @@ const firebaseConfig = {
   measurementId: "G-8NLVPC84FL"
 };
 
-// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exports dos serviços
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const analytics = getAnalytics(app);
 
+let analytics = null;
+try {
+  analytics = getAnalytics(app);
+} catch (e) {
+  console.warn('Firebase Analytics não disponível:', e);
+}
+
+export { analytics };
 export default app;

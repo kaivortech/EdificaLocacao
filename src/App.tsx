@@ -1,5 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Component, useEffect, useState } from 'react';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('Erro não capturado:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-screen flex items-center justify-center bg-tertiary-200 dark:bg-secondary-800 p-8">
+          <div className="text-center max-w-md">
+            <h1 className="text-2xl font-bold text-secondary-500 dark:text-white mb-4">Ops! Algo deu errado.</h1>
+            <p className="text-neutral-600 dark:text-neutral-300 mb-6">
+              Ocorreu um erro inesperado. Tente recarregar a página.
+            </p>
+            <button
+              onClick={() => { this.setState({ hasError: false }); window.location.reload(); }}
+              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-colors"
+            >
+              Recarregar
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { onAuthStateChange } from './services/authService';
 import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/Sidebar';
@@ -34,7 +68,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <BrowserRouter>
+    <ErrorBoundary>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
@@ -65,7 +100,8 @@ const App: React.FC = () => {
           }
         />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
+    </ErrorBoundary>
   );
 };
 
