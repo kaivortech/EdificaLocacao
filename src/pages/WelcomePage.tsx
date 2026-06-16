@@ -97,10 +97,7 @@ const WelcomePage: React.FC = () => {
           
           <div className="max-w-6xl mx-auto z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-left animate-slide-up">
-              <div className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                Plataforma completa para locadoras
-              </div>
+
               <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
                 Gestão inteligente para sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-500">frota de máquinas</span>
               </h2>
