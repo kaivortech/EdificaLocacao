@@ -250,10 +250,11 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
                   </td>
                   <td>
                     {deleteTarget === r.id ? (
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-neutral-600 dark:text-neutral-300 whitespace-nowrap">Excluir?</span>
-                        <button onClick={confirmDelete} className="btn-danger text-xs px-2 py-1">Sim</button>
-                        <button onClick={() => setDeleteTarget(null)} className="btn-ghost text-xs px-2 py-1">Não</button>
+                      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-1.5 animate-scale-in">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500 shrink-0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span className="text-xs font-medium text-red-600 dark:text-red-400 whitespace-nowrap">Excluir?</span>
+                        <button onClick={confirmDelete} className="text-xs font-semibold text-white bg-red-500 hover:bg-red-600 active:bg-red-700 px-2.5 py-1 rounded-md transition-colors">Sim</button>
+                        <button onClick={() => setDeleteTarget(null)} className="text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-200 dark:bg-secondary-600 hover:bg-neutral-300 dark:hover:bg-secondary-500 px-2.5 py-1 rounded-md transition-colors">Não</button>
                       </div>
                     ) : (
                       <div className="flex gap-2">
