@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { firestoreService } from '../services/firestoreService';
 import { Rental, Machine, Client } from '../types';
-import ConfirmDialog from '../components/ConfirmDialog';
 import { maskDate, maskCurrency, getCurrentDateFormatted } from '../utils/masks';
 
 const parseDateBR = (dateBR: string): Date => {
@@ -250,21 +249,29 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
                     </span>
                   </td>
                   <td>
-                    <div className="flex gap-2">
-                      {r.status === 'active' && (
-                        <>
-                          <button onClick={() => openEditForm(r)} className="btn-ghost text-yellow-500 hover:text-yellow-700" title="Editar">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                          </button>
-                          <button onClick={() => handleFinalize(r.id!, r.machineId)} className="btn-ghost text-sm text-primary">
-                            Finalizar
-                          </button>
-                        </>
-                      )}
-                      <button onClick={() => handleDelete(r.id!)} className="btn-ghost text-red-500 hover:text-red-700" title="Excluir">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                      </button>
-                    </div>
+                    {deleteTarget === r.id ? (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-neutral-600 dark:text-neutral-300 whitespace-nowrap">Excluir?</span>
+                        <button onClick={confirmDelete} className="btn-danger text-xs px-2 py-1">Sim</button>
+                        <button onClick={() => setDeleteTarget(null)} className="btn-ghost text-xs px-2 py-1">Não</button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        {r.status === 'active' && (
+                          <>
+                            <button onClick={() => openEditForm(r)} className="btn-ghost text-yellow-500 hover:text-yellow-700" title="Editar">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button onClick={() => handleFinalize(r.id!, r.machineId)} className="btn-ghost text-sm text-primary">
+                              Finalizar
+                            </button>
+                          </>
+                        )}
+                        <button onClick={() => handleDelete(r.id!)} className="btn-ghost text-red-500 hover:text-red-700" title="Excluir">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
@@ -273,13 +280,6 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
         </table>
       </div>
 
-      <ConfirmDialog
-        isOpen={deleteTarget !== null}
-        title="Excluir Locação"
-        message="Tem certeza que deseja excluir esta locação?"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteTarget(null)}
-      />
     </div>
   );
 };
