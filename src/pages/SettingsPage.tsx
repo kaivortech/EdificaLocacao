@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { deleteUserAccount, updateUserProfile } from '../services/authService';
+import { deleteUserAccount, updateUserProfile, changePassword } from '../services/authService';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
@@ -7,6 +7,9 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
   const [name, setName] = useState(user?.displayName || '');
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const [passwordData, setPasswordData] = useState({ current: '', newPass: '', confirm: '' });
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const handleSave = async () => {
     try {
@@ -21,6 +24,37 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
 
   const handleDelete = async () => {
     setShowDeleteConfirm(true);
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordData.current || !passwordData.newPass || !passwordData.confirm) {
+      setFeedback({ message: 'Preencha todos os campos de senha.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+    if (passwordData.newPass.length < 6) {
+      setFeedback({ message: 'A nova senha deve ter no mínimo 6 caracteres.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+    if (passwordData.newPass !== passwordData.confirm) {
+      setFeedback({ message: 'A confirmação de senha não confere.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await changePassword(passwordData.current, passwordData.newPass);
+      setPasswordData({ current: '', newPass: '', confirm: '' });
+      setFeedback({ message: 'Senha alterada com sucesso!', type: 'success' });
+    } catch (e: any) {
+      const msg = e.code === 'auth/wrong-password' ? 'Senha atual incorreta.'
+        : e.code === 'auth/too-many-requests' ? 'Muitas tentativas. Aguarde e tente novamente.'
+        : 'Erro ao alterar senha. Verifique a senha atual e tente novamente.';
+      setFeedback({ message: msg, type: 'error' });
+    }
+    setChangingPassword(false);
+    setTimeout(() => setFeedback(null), 5000);
   };
 
   const confirmDeleteAccount = async () => {
@@ -79,6 +113,28 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="card space-y-4">
+        <div className="border-b pb-2">
+          <h3 className="text-lg font-bold text-secondary-500 dark:text-white">Alterar Senha</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input type="password" placeholder="Senha atual" className="input-base"
+            value={passwordData.current}
+            onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })} />
+          <input type="password" placeholder="Nova senha" className="input-base"
+            value={passwordData.newPass}
+            onChange={(e) => setPasswordData({ ...passwordData, newPass: e.target.value })} />
+          <input type="password" placeholder="Confirmar nova senha" className="input-base"
+            value={passwordData.confirm}
+            onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })} />
+        </div>
+        <div className="flex justify-end">
+          <button onClick={handleChangePassword} disabled={changingPassword} className="btn-primary">
+            {changingPassword ? 'Alterando...' : 'Alterar Senha'}
+          </button>
+        </div>
       </div>
 
       <div className="card space-y-4 border-l-4 border-red-500">

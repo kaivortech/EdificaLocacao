@@ -5,6 +5,9 @@ import {
   sendPasswordResetEmail,
   deleteUser,
   updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
@@ -130,6 +133,21 @@ export const onAuthStateChange = (
   callback: (user: FirebaseUser | null) => void
 ) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// ============================================================
+// ALTERAR SENHA
+// ============================================================
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
+  const user = auth.currentUser;
+  if (!user || !user.email) throw new Error('Usuário não autenticado.');
+
+  const credential = EmailAuthProvider.credential(user.email, currentPassword);
+  await reauthenticateWithCredential(user, credential);
+  await updatePassword(user, newPassword);
 };
 
 // ============================================================
