@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { firestoreService } from '../services/firestoreService';
 import { Rental, Machine, Client } from '../types';
 import { maskDate, maskCurrency, getCurrentDateFormatted } from '../utils/masks';
@@ -28,6 +28,18 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!deleteTarget || deleting) return;
+    const handler = (e: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setDeleteTarget(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [deleteTarget, deleting]);
 
   const [formData, setFormData] = useState({
     clientId: '',
@@ -226,7 +238,7 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
         </div>
       )}
 
-      <div className="card table-container">
+      <div className="card table-container" style={{ overflow: deleteTarget ? 'visible' : undefined }}>
         <table>
           <thead>
             <tr>
@@ -254,22 +266,48 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
                       {r.status === 'active' ? 'Ativa' : r.status === 'completed' ? 'Finalizada' : 'Cancelada'}
                     </span>
                   </td>
-                  <td>
-                    <div className="flex gap-2">
-                      {r.status === 'active' && (
-                        <>
-                          <button onClick={() => openEditForm(r)} className="btn-ghost text-yellow-500 hover:text-yellow-700" title="Editar">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                          </button>
-                          <button onClick={() => handleFinalize(r.id!, r.machineId)} className="btn-ghost text-sm text-primary">
-                            Finalizar
-                          </button>
-                        </>
-                      )}
-                      <button onClick={() => handleDelete(r.id!)} className="btn-ghost text-red-500 hover:text-red-700" title="Excluir">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                      </button>
-                    </div>
+                  <td className="relative">
+                    {deleteTarget === r.id ? (
+                      <div ref={popoverRef} className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-white dark:bg-secondary-500 rounded-xl shadow-2xl border border-red-200 dark:border-red-800 p-4 min-w-[280px] animate-scale-in">
+                        <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white dark:bg-secondary-500 border-l border-t border-red-200 dark:border-red-800 rotate-[-45deg]" />
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-bold text-secondary-500 dark:text-white">Excluir locação?</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                              {client?.name} — {machine?.name}<br />
+                              {r.startDate} a {r.endDate} · R$ {r.totalAmount?.toFixed(2)}
+                            </p>
+                            <div className="flex gap-2 mt-3">
+                              <button onClick={() => setDeleteTarget(null)} className="text-xs font-medium px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-secondary-600 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-secondary-500 transition-colors">
+                                Cancelar
+                              </button>
+                              <button onClick={confirmDelete} disabled={deleting} className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 active:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                {deleting ? 'Excluindo...' : 'Sim, excluir'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        {r.status === 'active' && (
+                          <>
+                            <button onClick={() => openEditForm(r)} className="btn-ghost text-yellow-500 hover:text-yellow-700" title="Editar">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            </button>
+                            <button onClick={() => handleFinalize(r.id!, r.machineId)} className="btn-ghost text-sm text-primary">
+                              Finalizar
+                            </button>
+                          </>
+                        )}
+                        <button onClick={() => handleDelete(r.id!)} className="btn-ghost text-red-500 hover:text-red-700" title="Excluir">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
@@ -278,54 +316,6 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
         </table>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteTarget && (() => {
-        const rental = rentals.find(r => r.id === deleteTarget);
-        const client = clients.find(c => c.id === rental?.clientId);
-        const machine = machines.find(m => m.id === rental?.machineId);
-        return (
-          <div className="modal-overlay" onClick={() => !deleting && setDeleteTarget(null)}>
-            <div className="modal-content max-w-md p-0" onClick={e => e.stopPropagation()}>
-              <div className="p-6 text-center">
-                <div className="mx-auto w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                </div>
-                <h3 className="text-lg font-bold text-secondary-500 dark:text-white mb-2">Excluir Locação</h3>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-                  Tem certeza que deseja excluir esta locação? Esta ação não pode ser desfeita.
-                </p>
-                {rental && (
-                  <div className="bg-tertiary-100 dark:bg-secondary-700 rounded-lg p-4 text-left space-y-1.5 mb-6">
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      <span className="font-medium">Cliente:</span> {client?.name || 'Removido'}
-                    </p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      <span className="font-medium">Máquina:</span> {machine?.name || 'Removida'}
-                    </p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      <span className="font-medium">Período:</span> {rental.startDate} a {rental.endDate}
-                    </p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                      <span className="font-medium">Valor:</span> R$ {rental.totalAmount?.toFixed(2) || '0,00'}
-                    </p>
-                  </div>
-                )}
-                <div className="flex gap-3 justify-center">
-                  <button onClick={() => setDeleteTarget(null)} disabled={deleting} className="btn-ghost px-6">Cancelar</button>
-                  <button onClick={confirmDelete} disabled={deleting} className="btn-danger min-w-[130px]">
-                    {deleting ? (
-                      <span className="flex items-center gap-2"><span className="spinner !border-white !border-t-transparent w-4 h-4" /> Excluindo...</span>
-                    ) : 'Sim, excluir'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 };
