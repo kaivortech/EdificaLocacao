@@ -103,7 +103,11 @@ export const updateUserProfile = async (
   if (!currentUser) throw new Error('Nenhum usuário autenticado.');
 
   if (data.name) {
-    await updateProfile(currentUser, { displayName: data.name });
+    try {
+      await updateProfile(currentUser, { displayName: data.name });
+    } catch (e) {
+      console.warn('Erro ao atualizar displayName no Auth (não crítico):', e);
+    }
   }
 
   await updateDoc(doc(db, 'users', uid), {
