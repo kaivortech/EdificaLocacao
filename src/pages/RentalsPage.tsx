@@ -278,7 +278,7 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
                             <p className="text-sm font-bold text-secondary-500 dark:text-white">Excluir locação?</p>
                             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
                               {client?.name} — {machine?.name}<br />
-                              {r.startDate} a {r.endDate} · R$ {r.totalAmount?.toFixed(2)}
+                              {r.startDate} a {r.endDate}
                             </p>
                             <div className="flex gap-2 mt-3">
                               <button onClick={() => setDeleteTarget(null)} className="text-xs font-medium px-3 py-1.5 rounded-lg bg-neutral-100 dark:bg-secondary-600 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-secondary-500 transition-colors">
