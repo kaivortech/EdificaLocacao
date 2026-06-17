@@ -17,8 +17,9 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
       setIsEditing(false);
       setFeedback({ message: 'Perfil atualizado com sucesso!', type: 'success' });
       setTimeout(() => setFeedback(null), 5000);
-    } catch (e) {
-      alert('Erro ao atualizar perfil.');
+    } catch (e: any) {
+      setFeedback({ message: e.message || 'Erro ao atualizar perfil.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
     }
   };
 
