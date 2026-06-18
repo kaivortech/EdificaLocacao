@@ -40,28 +40,28 @@ const WelcomePage: React.FC = () => {
             </h1>
           </div>
           
-           <div className="flex items-center gap-4 transition-all duration-300">
+           <div className="flex items-center gap-2 transition-all duration-300">
             <button 
               onClick={() => navigate('/register')}
               className="text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block"
             >
               Cadastre-se
             </button>
-            <div className="relative">
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => setIsLoginOpen(!isLoginOpen)} 
-                className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm"
+                className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm whitespace-nowrap"
               >
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-up z-50">
-                  {error && <div className="bg-red-500/10 text-red-400 p-2 rounded-lg mb-3 text-sm">{error}</div>}
-                  <form onSubmit={handleLogin} className="flex flex-col md:flex-row items-stretch md:items-center gap-2 min-w-0">
+                <div className="flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
+                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
+                  <form onSubmit={handleLogin} className="flex items-center gap-1.5">
                     <input
                       type="email"
                       placeholder="E-mail"
-                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-auto"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -69,12 +69,12 @@ const WelcomePage: React.FC = () => {
                     <input
                       type="password"
                       placeholder="Senha"
-                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-auto"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
-                    <button type="submit" className="btn-primary text-sm px-4 py-2 rounded-lg whitespace-nowrap" disabled={loading}>
+                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={loading}>
                       {loading ? '...' : 'Entrar'}
                     </button>
                   </form>
