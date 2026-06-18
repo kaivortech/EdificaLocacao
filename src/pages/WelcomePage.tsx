@@ -77,7 +77,11 @@ const WelcomePage: React.FC = () => {
       await registerUser(regName, regEmail, regPassword, regCpf, 'admin');
       navigate('/dashboard');
     } catch (err: any) {
-      setRegError(err.message || 'Erro ao cadastrar.');
+      if (err.code === 'auth/email-already-in-use') {
+        setRegError('Este e-mail já possui uma conta. Faça login.');
+      } else {
+        setRegError(err.message || 'Erro ao cadastrar.');
+      }
     } finally {
       setRegLoading(false);
     }
@@ -137,7 +141,7 @@ const WelcomePage: React.FC = () => {
                         onChange={(e) => setRegEmail(e.target.value)}
                         required
                       />
-                      <div className="relative">
+                      <div className="relative pb-5">
                         <input
                           type="text"
                           placeholder="CPF"
@@ -147,10 +151,10 @@ const WelcomePage: React.FC = () => {
                           required
                         />
                         {cpfValido === true && (
-                          <span className="absolute -bottom-4 left-0 text-[10px] text-green-400 font-medium">CPF válido</span>
+                          <span className="absolute bottom-0 left-0 text-[10px] text-green-400 font-medium">CPF válido</span>
                         )}
                         {cpfValido === false && (
-                          <span className="absolute -bottom-4 left-0 text-[10px] text-red-400 font-medium">CPF inválido</span>
+                          <span className="absolute bottom-0 left-0 text-[10px] text-red-400 font-medium">CPF inválido</span>
                         )}
                       </div>
                       <input
