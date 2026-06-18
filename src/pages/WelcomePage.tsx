@@ -33,6 +33,32 @@ const WelcomePage: React.FC = () => {
       .slice(0, 14);
   };
 
+  const validateCPF = (cpf: string): boolean => {
+    const digits = cpf.replace(/\D/g, '');
+    if (digits.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(digits)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(digits[i]) * (10 - i);
+    let rest = (sum * 10) % 11;
+    if (rest === 10) rest = 0;
+    if (rest !== parseInt(digits[9])) return false;
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(digits[i]) * (11 - i);
+    rest = (sum * 10) % 11;
+    if (rest === 10) rest = 0;
+    if (rest !== parseInt(digits[10])) return false;
+    return true;
+  };
+
+  const cpfValido = regCpf.replace(/\D/g, '').length === 11 ? validateCPF(regCpf) : null;
+
+  const passwordChecks = {
+    upper: /[A-Z]/.test(regPassword),
+    lower: /[a-z]/.test(regPassword),
+    number: /[0-9]/.test(regPassword),
+  };
+  const allPass = passwordChecks.upper && passwordChecks.lower && passwordChecks.number;
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
@@ -84,7 +110,7 @@ const WelcomePage: React.FC = () => {
           </div>
           
            <div className="flex items-center gap-2 transition-all duration-300">
-            <div className="flex items-center gap-2">
+            <div className="relative flex items-center gap-2">
               <button 
                 onClick={() => { setIsRegisterOpen(!isRegisterOpen); if (!isRegisterOpen) setIsLoginOpen(false); }}
                 className="text-sm text-neutral-400 hover:text-white transition-colors whitespace-nowrap"
@@ -92,53 +118,80 @@ const WelcomePage: React.FC = () => {
                 Cadastre-se
               </button>
               {isRegisterOpen && (
-                <div className="flex items-center gap-1.5 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
-                  <form onSubmit={handleRegister} className="flex items-center gap-1.5">
-                    <input
-                      type="text"
-                      placeholder="Nome"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="email"
-                      placeholder="E-mail"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="CPF"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
-                      value={regCpf}
-                      onChange={(e) => setRegCpf(formatCPF(e.target.value))}
-                      required
-                    />
-                    <input
-                      type="password"
-                      placeholder="Senha"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="password"
-                      placeholder="Confirmar"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
-                      value={regConfirmPassword}
-                      onChange={(e) => setRegConfirmPassword(e.target.value)}
-                      required
-                    />
-                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={regLoading}>
-                      {regLoading ? '...' : 'Cadastrar'}
+                <div className="absolute left-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 min-w-[420px]">
+                  <form onSubmit={handleRegister} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Nome"
+                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full col-span-2"
+                        value={regName}
+                        onChange={(e) => setRegName(e.target.value)}
+                        required
+                      />
+                      <input
+                        type="email"
+                        placeholder="E-mail"
+                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        required
+                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="CPF"
+                          className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                          value={regCpf}
+                          onChange={(e) => setRegCpf(formatCPF(e.target.value))}
+                          required
+                        />
+                        {cpfValido === true && (
+                          <span className="absolute -bottom-4 left-0 text-[10px] text-green-400 font-medium">CPF válido</span>
+                        )}
+                        {cpfValido === false && (
+                          <span className="absolute -bottom-4 left-0 text-[10px] text-red-400 font-medium">CPF inválido</span>
+                        )}
+                      </div>
+                      <input
+                        type="password"
+                        placeholder="Senha"
+                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        required
+                      />
+                      <input
+                        type="password"
+                        placeholder="Confirmar"
+                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                        value={regConfirmPassword}
+                        onChange={(e) => setRegConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    {regPassword && (
+                      <div className="flex items-center gap-3 text-[10px]">
+                        <span className={`flex items-center gap-1 ${passwordChecks.upper ? 'text-green-400' : 'text-neutral-500'}`}>
+                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.upper ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                          A-Z
+                        </span>
+                        <span className={`flex items-center gap-1 ${passwordChecks.lower ? 'text-green-400' : 'text-neutral-500'}`}>
+                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.lower ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                          a-z
+                        </span>
+                        <span className={`flex items-center gap-1 ${passwordChecks.number ? 'text-green-400' : 'text-neutral-500'}`}>
+                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.number ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                          0-9
+                        </span>
+                        {allPass && <span className="text-green-400 font-medium">✓ Senha segura</span>}
+                      </div>
+                    )}
+                    {regError && <div className="text-red-400 text-xs">{regError}</div>}
+                    <button type="submit" className="btn-primary text-xs px-4 py-2 rounded-lg w-full" disabled={regLoading || (regPassword.length > 0 && !allPass)}>
+                      {regLoading ? 'Cadastrando...' : 'Cadastrar'}
                     </button>
                   </form>
-                  {regError && <div className="text-red-400 text-xs whitespace-nowrap max-w-24 truncate">{regError}</div>}
                 </div>
               )}
             </div>
