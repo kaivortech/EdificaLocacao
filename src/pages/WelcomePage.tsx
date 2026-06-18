@@ -141,7 +141,7 @@ const WelcomePage: React.FC = () => {
                         onChange={(e) => setRegEmail(e.target.value)}
                         required
                       />
-                      <div className="relative pb-5">
+                      <div className="relative pb-7">
                         <input
                           type="text"
                           placeholder="CPF"
@@ -151,10 +151,10 @@ const WelcomePage: React.FC = () => {
                           required
                         />
                         {cpfValido === true && (
-                          <span className="absolute bottom-0 left-0 text-[10px] text-green-400 font-medium">CPF válido</span>
+                          <span className="absolute bottom-1 left-0 text-[10px] text-green-400 font-medium leading-none">CPF válido</span>
                         )}
                         {cpfValido === false && (
-                          <span className="absolute bottom-0 left-0 text-[10px] text-red-400 font-medium">CPF inválido</span>
+                          <span className="absolute bottom-1 left-0 text-[10px] text-red-400 font-medium leading-none">CPF inválido</span>
                         )}
                       </div>
                       <input
