@@ -30,7 +30,7 @@ const WelcomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-900 text-white font-sans selection:bg-primary selection:text-white flex flex-col">
+    <div className="min-h-screen bg-secondary-900 text-white font-sans selection:bg-primary selection:text-white flex flex-col overflow-x-hidden">
       {/* NAVBAR */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-secondary-900/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -40,7 +40,7 @@ const WelcomePage: React.FC = () => {
             </h1>
           </div>
           
-          <div className={`flex items-center gap-4 transition-all duration-300 ${isLoginOpen ? 'mr-80' : ''}`}>
+           <div className="flex items-center gap-4 transition-all duration-300">
             <button 
               onClick={() => navigate('/register')}
               className="text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block"
@@ -55,13 +55,13 @@ const WelcomePage: React.FC = () => {
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-up z-50">
+                <div className="absolute left-1/2 -translate-x-1/2 md:left-full md:ml-3 md:top-1/2 md:-translate-y-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-up z-50">
                   {error && <div className="bg-red-500/10 text-red-400 p-2 rounded-lg mb-3 text-sm">{error}</div>}
-                  <form onSubmit={handleLogin} className="flex items-center gap-2">
+                  <form onSubmit={handleLogin} className="flex flex-col md:flex-row items-stretch md:items-center gap-2 min-w-0">
                     <input
                       type="email"
                       placeholder="E-mail"
-                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-36"
+                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-auto"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -69,7 +69,7 @@ const WelcomePage: React.FC = () => {
                     <input
                       type="password"
                       placeholder="Senha"
-                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
+                      className="text-sm py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-auto"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -120,7 +120,7 @@ const WelcomePage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/5">
+              <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/5 flex-wrap">
                 <div>
                   <p className="text-3xl font-bold text-primary">500+</p>
                   <p className="text-sm text-neutral-500">Clientes ativos</p>
