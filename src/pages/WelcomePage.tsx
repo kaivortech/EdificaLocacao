@@ -124,11 +124,11 @@ const WelcomePage: React.FC = () => {
               {isRegisterOpen && (
                 <div className="absolute left-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 min-w-[420px]">
                   <form onSubmit={handleRegister} className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-3">
                       <input
                         type="text"
                         placeholder="Nome"
-                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full col-span-2"
+                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
                         value={regName}
                         onChange={(e) => setRegName(e.target.value)}
                         required
@@ -157,6 +157,8 @@ const WelcomePage: React.FC = () => {
                           <span className="absolute bottom-1 left-0 text-[10px] text-red-400 font-medium leading-none">CPF inválido</span>
                         )}
                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
                       <input
                         type="password"
                         placeholder="Senha"
