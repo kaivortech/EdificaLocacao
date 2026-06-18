@@ -268,7 +268,8 @@ export const gerarPDFContratoLocacao = (
   // ── ABRIR PDF ───────────────────────────────────────────────
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
-  const fileName = `Contrato_Edifica_${contractNum}_${rental.clientName.replace(/\s+/g, '_')}.pdf`;
+  const safeName = (rental.clientName || 'cliente').replace(/\s+/g, '_');
+  const fileName = `Contrato_Edifica_${contractNum}_${safeName}.pdf`;
 
   // Tenta abrir em nova aba; fallback para download
   const newWindow = window.open(pdfUrl, '_blank');
