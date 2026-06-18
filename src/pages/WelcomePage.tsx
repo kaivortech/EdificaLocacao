@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/authService';
+import { loginUser, registerUser } from '../services/authService';
 import heroConstruction from '../assets/hero-construction.png';
 import georrandesImg from '../assets/georrandes.jpg';
 import dashboardMockup from '../assets/dashboard-mockup.png';
@@ -8,11 +8,54 @@ import dashboardMockup from '../assets/dashboard-mockup.png';
 const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+
+  // Register fields
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regCpf, setRegCpf] = useState('');
+  const [regError, setRegError] = useState('');
+  const [regLoading, setRegLoading] = useState(false);
+
+  const formatCPF = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+      .slice(0, 14);
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegError('');
+
+    if (regPassword !== regConfirmPassword) {
+      setRegError('Senhas não conferem.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setRegError('A senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+
+    setRegLoading(true);
+    try {
+      await registerUser(regName, regEmail, regPassword, regCpf, 'admin');
+      navigate('/dashboard');
+    } catch (err: any) {
+      setRegError(err.message || 'Erro ao cadastrar.');
+    } finally {
+      setRegLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,15 +84,67 @@ const WelcomePage: React.FC = () => {
           </div>
           
            <div className="flex items-center gap-2 transition-all duration-300">
-            <button 
-              onClick={() => navigate('/register')}
-              className="text-sm text-neutral-400 hover:text-white transition-colors hidden sm:block"
-            >
-              Cadastre-se
-            </button>
             <div className="flex items-center gap-2">
               <button 
-                onClick={() => setIsLoginOpen(!isLoginOpen)} 
+                onClick={() => { setIsRegisterOpen(!isRegisterOpen); if (!isRegisterOpen) setIsLoginOpen(false); }}
+                className="text-sm text-neutral-400 hover:text-white transition-colors whitespace-nowrap"
+              >
+                Cadastre-se
+              </button>
+              {isRegisterOpen && (
+                <div className="flex items-center gap-1.5 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
+                  <form onSubmit={handleRegister} className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      placeholder="Nome"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="email"
+                      placeholder="E-mail"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
+                      value={regEmail}
+                      onChange={(e) => setRegEmail(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="CPF"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
+                      value={regCpf}
+                      onChange={(e) => setRegCpf(formatCPF(e.target.value))}
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Senha"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
+                      value={regPassword}
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      required
+                    />
+                    <input
+                      type="password"
+                      placeholder="Confirmar"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
+                      value={regConfirmPassword}
+                      onChange={(e) => setRegConfirmPassword(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={regLoading}>
+                      {regLoading ? '...' : 'Cadastrar'}
+                    </button>
+                  </form>
+                  {regError && <div className="text-red-400 text-xs whitespace-nowrap max-w-24 truncate">{regError}</div>}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => { setIsLoginOpen(!isLoginOpen); if (!isLoginOpen) setIsRegisterOpen(false); }} 
                 className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm whitespace-nowrap"
               >
                 Fazer Login
@@ -255,7 +350,7 @@ const WelcomePage: React.FC = () => {
               Junte-se a centenas de empresas que já modernizaram sua gestão de locação com a Edifica.
             </p>
             <button 
-              onClick={() => navigate('/register')} 
+              onClick={() => { setIsRegisterOpen(true); setIsLoginOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
               className="btn-primary text-lg px-10 py-4 rounded-2xl shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all duration-300"
             >
               Criar Conta Grátis
@@ -278,7 +373,7 @@ const WelcomePage: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-neutral-400">Produto</h4>
               <ul className="space-y-2 text-sm text-neutral-500">
-                <li><button onClick={() => navigate('/register')} className="hover:text-white transition-colors">Cadastre-se</button></li>
+                <li><button onClick={() => { setIsRegisterOpen(true); setIsLoginOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors">Cadastre-se</button></li>
                 <li><button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-white transition-colors">Funcionalidades</button></li>
               </ul>
             </div>
