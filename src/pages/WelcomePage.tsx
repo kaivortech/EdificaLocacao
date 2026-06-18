@@ -150,7 +150,7 @@ const WelcomePage: React.FC = () => {
         </section>
 
         {/* SOBRE NÓS */}
-        <section className="py-24 bg-secondary-900 border-t border-white/5">
+        <section id="about-section" className="py-24 bg-secondary-900 border-t border-white/5">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <span className="text-primary font-semibold text-sm uppercase tracking-widest">Sobre Nós</span>
