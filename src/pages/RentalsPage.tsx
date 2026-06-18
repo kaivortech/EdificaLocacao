@@ -59,14 +59,9 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
         firestoreService.getMachines(),
         firestoreService.getClients()
       ]);
-      const sortByDate = (a: Rental, b: Rental) => {
-        const [da, ma, ya] = a.startDate.split('/').map(Number);
-        const [db, mb, yb] = b.startDate.split('/').map(Number);
-        return new Date(ya, ma - 1, da).getTime() - new Date(yb, mb - 1, db).getTime();
-      };
-      setRentals((rData as Rental[]).sort(sortByDate));
-      setMachines((mData as Machine[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
-      setClients((cData as Client[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
+      setRentals((rData as Rental[]).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      setMachines((mData as Machine[]).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      setClients((cData as Client[]).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     } catch (e) { console.error(e); }
   };
 
