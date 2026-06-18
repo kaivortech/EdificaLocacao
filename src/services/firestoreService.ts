@@ -38,7 +38,8 @@ export const firestoreService = {
   async addMachine(machine: any): Promise<void> {
     const auth = getAuth();
     const user = auth.currentUser;
-    const data = { ...machine, userId: user?.uid };
+    const now = new Date().toISOString();
+    const data = { ...machine, userId: user?.uid, createdAt: now, updatedAt: now };
     const ref = machine.id ? doc(db, 'maquinas', machine.id) : doc(collection(db, 'maquinas'));
     await setDoc(ref, data);
   },
@@ -46,7 +47,8 @@ export const firestoreService = {
   async addClient(client: any): Promise<void> {
     const auth = getAuth();
     const user = auth.currentUser;
-    const data = { ...client, userId: user?.uid };
+    const now = new Date().toISOString();
+    const data = { ...client, userId: user?.uid, createdAt: now, updatedAt: now };
     const ref = client.id ? doc(db, 'clientes', client.id) : doc(collection(db, 'clientes'));
     await setDoc(ref, data);
   },
@@ -54,7 +56,8 @@ export const firestoreService = {
   async addRental(rental: any): Promise<void> {
     const auth = getAuth();
     const user = auth.currentUser;
-    const data = { ...rental, userId: user?.uid };
+    const now = new Date().toISOString();
+    const data = { ...rental, userId: user?.uid, createdAt: now, updatedAt: now };
     const ref = rental.id ? doc(db, 'locacoes', rental.id) : doc(collection(db, 'locacoes'));
     await setDoc(ref, data);
   },

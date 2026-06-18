@@ -18,7 +18,9 @@ const MachinesPage: React.FC<{ user: any }> = ({ user }) => {
   const loadMachines = async () => {
     try {
       const data = await firestoreService.getMachines();
-      setMachines((data as Machine[]).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      setMachines((data as Machine[]).sort((a, b) =>
+        (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0) || b.id.localeCompare(a.id)
+      ));
     } catch (e) {
       console.error(e);
     }

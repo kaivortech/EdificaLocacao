@@ -16,7 +16,9 @@ const ClientsPage: React.FC<{ user: any }> = ({ user }) => {
   const loadClients = async () => {
     try {
       const data = await firestoreService.getClients();
-      setClients((data as Client[]).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      setClients((data as Client[]).sort((a, b) =>
+        (b.createdAt ? new Date(b.createdAt).getTime() : 0) - (a.createdAt ? new Date(a.createdAt).getTime() : 0) || b.id.localeCompare(a.id)
+      ));
     } catch (e) {
       console.error(e);
     }
