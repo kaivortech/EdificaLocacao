@@ -55,7 +55,7 @@ const WelcomePage: React.FC = () => {
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 md:left-full md:ml-3 md:top-1/2 md:-translate-y-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-up z-50">
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-up z-50">
                   {error && <div className="bg-red-500/10 text-red-400 p-2 rounded-lg mb-3 text-sm">{error}</div>}
                   <form onSubmit={handleLogin} className="flex flex-col md:flex-row items-stretch md:items-center gap-2 min-w-0">
                     <input
