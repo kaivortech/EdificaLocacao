@@ -52,25 +52,41 @@ export const gerarPDFContratoLocacao = async (
   const emitDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const drawHeader = async () => {
+    const headerH = 34;
     doc.setFillColor(...COLORS.primary);
-    doc.rect(0, 0, pageWidth, 28, 'F');
+    doc.rect(0, 0, pageWidth, headerH, 'F');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(...COLORS.white);
-    doc.text('Edifica Locação', margin, 12);
+    doc.text('Edifica Locação', margin, 14);
 
-    const logoH = 14;
-    const logoW = 14;
+    const logoH = 22;
+    const logoW = 22;
     const logoX = pageWidth - margin - logoW;
-    const logoY = (28 - logoH) / 2;
+    const logoY = (headerH - logoH) / 2;
     const logo = await getLogoBase64();
     doc.addImage(logo, 'JPEG', logoX, logoY, logoW, logoH);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text(`Identificador: ${identifier}`, margin, 20);
-    doc.text(`Emitido em: ${emitDate}`, pageWidth - margin, 20, { align: 'right' });
+    doc.text(`Identificador: ${identifier}`, margin, 22);
+    doc.text(`Emitido em: ${emitDate}`, pageWidth - margin, logoY + logoH + 5, { align: 'right' });
+
+    return headerH;
+  };
+
+  const drawLongRow = (label: string, value: string, x: number, y: number, labelW = 45, valueW = contentWidth - labelW): number => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...COLORS.neutral);
+    doc.text(label, x, y);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.secondary);
+    const lines = doc.splitTextToSize(value, valueW);
+    doc.text(lines, x + labelW, y);
+    return y + lines.length * 5;
   };
 
   const drawSectionTitle = (title: string, y: number): number => {
@@ -100,33 +116,49 @@ export const gerarPDFContratoLocacao = async (
   const drawTable = (headers: string[], rows: string[][], y: number, startX?: number, colWidths?: number[]): number => {
     const sx = startX || margin;
     const cw = colWidths || [contentWidth / 2 - 4, contentWidth / 2 - 4];
-    const rowH = 6.5;
     const padX = 2;
     const padY = 4.5;
+    const lineH = 4;
 
-    const drawCell = (text: string, x: number, w: number, isHeader: boolean) => {
+    const drawCell = (text: string, x: number, w: number, isHeader: boolean): number => {
+      const lines = doc.splitTextToSize(text, w - padX * 2);
+      const cellH = Math.max(6.5, lines.length * lineH + padY);
+
       if (isHeader) {
         doc.setFillColor(...COLORS.primary);
-        doc.rect(x, y, w, rowH, 'F');
+        doc.rect(x, y, w, cellH, 'F');
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(8);
         doc.setTextColor(...COLORS.white);
       } else {
         doc.setFillColor(248, 249, 250);
-        doc.rect(x, y, w, rowH, 'F');
+        doc.rect(x, y, w, cellH, 'F');
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8);
         doc.setTextColor(...COLORS.secondary);
       }
-      doc.text(text, x + padX, y + padY);
+
+      lines.forEach((line: string, i: number) => {
+        doc.text(line, x + padX, y + padY + i * lineH);
+      });
+
+      return cellH;
     };
 
-    headers.forEach((h, i) => drawCell(h, sx + (cw[i] || cw[0]) * i, cw[i], true));
-    y += rowH;
+    let maxH = 0;
+    headers.forEach((h, i) => {
+      const cellH = drawCell(h, sx + (cw[i] || cw[0]) * i, cw[i], true);
+      maxH = Math.max(maxH, cellH);
+    });
+    y += maxH;
 
     rows.forEach((row) => {
-      row.forEach((cell, i) => drawCell(cell, sx + (cw[i] || cw[0]) * i, cw[i], false));
-      y += rowH;
+      maxH = 0;
+      row.forEach((cell, i) => {
+        const cellH = drawCell(cell, sx + (cw[i] || cw[0]) * i, cw[i], false);
+        maxH = Math.max(maxH, cellH);
+      });
+      y += maxH;
     });
 
     doc.setDrawColor(...COLORS.border);
@@ -134,15 +166,15 @@ export const gerarPDFContratoLocacao = async (
     return y + 3;
   };
 
-  await drawHeader();
+  const headerH = await drawHeader();
 
-  let y = 36;
+  let y = headerH + 8;
 
   // Locador
   y = drawSectionTitle('LOCADOR (EMPRESA)', y);
   y = drawRow('Nome:', EMPRESA.nome, margin, y);
   y = drawRow('CNPJ:', EMPRESA.cnpj, margin, y);
-  y = drawRow('Endereço:', `${EMPRESA.endereco}, ${EMPRESA.complemento}`, margin, y);
+  y = drawLongRow('Endereço:', `${EMPRESA.endereco}, ${EMPRESA.complemento}`, margin, y);
   y = drawRow('Telefone:', EMPRESA.telefone, margin, y);
   y = drawRow('Email:', EMPRESA.email, margin, y);
   y += 2;
@@ -155,7 +187,7 @@ export const gerarPDFContratoLocacao = async (
   const docEmail = client?.email || '';
   y = drawRow('Nome:', rental.clientName || client?.name || '', margin, y);
   y = drawRow('CPF/CNPJ:', docCPF, margin, y);
-  y = drawRow('Endereço:', docAddress, margin, y);
+  y = drawLongRow('Endereço:', docAddress, margin, y);
   y = drawRow('Telefone:', docPhone, margin, y);
   y = drawRow('Email:', docEmail, margin, y);
   y += 2;
