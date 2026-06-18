@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { firestoreService } from '../services/firestoreService';
 import { Rental, Machine, Client } from '../types';
 import { maskDate, maskCurrency, getCurrentDateFormatted } from '../utils/masks';
+import { gerarPDFContratoLocacao } from '../services/pdfService';
 
 const parseDateBR = (dateBR: string): Date => {
   const [day, month, year] = dateBR.split('/').map(Number);
@@ -164,6 +165,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     if(r) {
       await firestoreService.updateRental({ id: rentalId, status: 'completed' });
       await firestoreService.updateMachine({ id: machineId, status: 'available' });
+      const client = clients.find(c => c.id === r.clientId);
+      gerarPDFContratoLocacao(r, client);
       loadData();
     }
   };
