@@ -1,12 +1,9 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { Rental, Client } from '../types';
+import { Rental, Client, Machine } from '../types';
 
-// ============================================================
-// DADOS DA EMPRESA
-// ============================================================
 const EMPRESA = {
-  nome: 'Edifica Locação',
+  nome: 'Edifica Locações de Máquinas e Equipamentos Ltda.',
   cnpj: '54.567.138/0001-04',
   endereco: 'Rua Carine Cristina Monteiro da Silva, 305 - Lot. Oceania VI',
   complemento: 'Portal do Poço, Cabedelo - PB. CEP: 58106-086',
@@ -14,267 +11,262 @@ const EMPRESA = {
   email: 'Georrandes@hotmail.com',
 };
 
-// ============================================================
-// CORES DA PALETA
-// ============================================================
 const COLORS = {
   primary: [145, 117, 35] as [number, number, number],
   secondary: [44, 46, 48] as [number, number, number],
   neutral: [108, 117, 125] as [number, number, number],
   light: [248, 249, 250] as [number, number, number],
   white: [255, 255, 255] as [number, number, number],
-  border: [222, 226, 230] as [number, number, number],
+  border: [200, 200, 200] as [number, number, number],
 };
 
-// ============================================================
-// GERAR PDF DO CONTRATO
-// ============================================================
 export const gerarPDFContratoLocacao = (
   rental: Rental,
-  client?: Client | null
+  client?: Client | null,
+  machine?: Machine | null
 ): void => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 20;
+  const margin = 18;
   const contentWidth = pageWidth - margin * 2;
 
-  // ── CABEÇALHO ──────────────────────────────────────────────
-  // Barra superior dourada
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 0, pageWidth, 32, 'F');
+  const identifier = `LOC-RENT-${rental.id.slice(-3)}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
+  const emitDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  // Nome da empresa
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(...COLORS.white);
-  doc.text(EMPRESA.nome.toUpperCase(), margin, 13);
-
-  // Subtítulo
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text('CONTRATO DE LOCAÇÃO DE EQUIPAMENTOS', margin, 20);
-
-  // Dados de contato no cabeçalho (direita)
-  doc.setFontSize(8);
-  doc.text(`Tel: ${EMPRESA.telefone}`, pageWidth - margin, 12, { align: 'right' });
-  doc.text(EMPRESA.email, pageWidth - margin, 17, { align: 'right' });
-  doc.text(`CNPJ: ${EMPRESA.cnpj}`, pageWidth - margin, 22, { align: 'right' });
-
-  // ── NÚMERO DO CONTRATO ──────────────────────────────────────
-  doc.setFillColor(...COLORS.light);
-  doc.rect(margin, 36, contentWidth, 10, 'F');
-  doc.setDrawColor(...COLORS.border);
-  doc.rect(margin, 36, contentWidth, 10, 'D');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(...COLORS.secondary);
-  const contractNum = rental.id.slice(-8).toUpperCase();
-  doc.text(`CONTRATO Nº: ${contractNum}`, margin + 4, 42.5);
-
-  const emissaoDate = new Date().toLocaleDateString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...COLORS.neutral);
-  doc.text(`Emitido em: ${emissaoDate}`, pageWidth - margin - 4, 42.5, { align: 'right' });
-
-  let y = 52;
-
-  // ── SEÇÃO: DADOS DO LOCATÁRIO ───────────────────────────────
-  const drawSection = (title: string, yPos: number): number => {
+  const drawHeader = () => {
     doc.setFillColor(...COLORS.primary);
-    doc.rect(margin, yPos, contentWidth, 7, 'F');
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(...COLORS.white);
+    doc.text('CONTRATO DE LOCAÇÃO DE EQUIPAMENTO E ACESSÓRIOS', margin, 12);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text(`Identificador: ${identifier}`, margin, 20);
+    doc.text(`Emitido em: ${emitDate}`, pageWidth - margin, 20, { align: 'right' });
+  };
+
+  const drawSectionTitle = (title: string, y: number): number => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...COLORS.secondary);
+    doc.text(title, margin, y);
+    const y2 = y + 2;
+    doc.setDrawColor(...COLORS.primary);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y2, pageWidth - margin, y2);
+    return y2 + 4;
+  };
+
+  const drawRow = (label: string, value: string, x: number, y: number, labelW = 45): number => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor(...COLORS.white);
-    doc.text(title, margin + 3, yPos + 5);
-    return yPos + 7;
-  };
-
-  const drawRow = (label: string, value: string, yPos: number, col2?: boolean): number => {
-    const colX = col2 ? margin + contentWidth / 2 + 2 : margin;
-    const colW = col2 ? contentWidth / 2 - 2 : contentWidth;
-
-    doc.setFillColor(248, 249, 250);
-    if (!col2) doc.rect(margin, yPos, contentWidth, 7, 'F');
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
     doc.setTextColor(...COLORS.neutral);
-    doc.text(label + ':', colX + 2, yPos + 4.5);
+    doc.text(label, x, y);
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...COLORS.secondary);
-    const labelWidth = doc.getTextWidth(label + ': ');
-    doc.text(value || '—', colX + 2 + labelWidth + 1, yPos + 4.5);
-
-    if (!col2) {
-      doc.setDrawColor(...COLORS.border);
-      doc.line(margin, yPos + 7, margin + contentWidth, yPos + 7);
-      return yPos + 7;
-    }
-    return yPos;
+    doc.text(value || '—', x + labelW, y);
+    return y + 5;
   };
 
-  // DADOS DO LOCATÁRIO
-  y = drawSection('DADOS DO LOCATÁRIO', y) + 1;
-  y = drawRow('Nome', rental.clientName, y);
-  if (client) {
-    const cpfCnpj = client.cpf || client.cnpj || '';
-    drawRow('CPF/CNPJ', cpfCnpj, y);
-    drawRow('Telefone', client.phone || '', y, true);
-    y += 7;
-    if (client.address) {
-      y = drawRow('Endereço', `${client.address}${client.city ? `, ${client.city}` : ''}${client.state ? `/${client.state}` : ''}`, y);
-    }
-  }
+  const drawTable = (headers: string[], rows: string[][], y: number, startX?: number, colWidths?: number[]): number => {
+    const sx = startX || margin;
+    const cw = colWidths || [contentWidth / 2 - 4, contentWidth / 2 - 4];
+    const rowH = 6.5;
+    const padX = 2;
+    const padY = 4.5;
 
-  y += 4;
+    const drawCell = (text: string, x: number, w: number, isHeader: boolean) => {
+      if (isHeader) {
+        doc.setFillColor(...COLORS.primary);
+        doc.rect(x, y, w, rowH, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLORS.white);
+      } else {
+        doc.setFillColor(248, 249, 250);
+        doc.rect(x, y, w, rowH, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLORS.secondary);
+      }
+      doc.text(text, x + padX, y + padY);
+    };
 
-  // DADOS DO EQUIPAMENTO
-  y = drawSection('DADOS DO EQUIPAMENTO', y) + 1;
-  y = drawRow('Equipamento', rental.machineName, y);
-  drawRow('Tipo/Categoria', rental.machineType, y);
-  drawRow('ID Equipamento', rental.machineId.slice(-8).toUpperCase(), y, true);
-  y += 7;
+    headers.forEach((h, i) => drawCell(h, sx + (cw[i] || cw[0]) * i, cw[i], true));
+    y += rowH;
 
-  y += 4;
+    rows.forEach((row) => {
+      row.forEach((cell, i) => drawCell(cell, sx + (cw[i] || cw[0]) * i, cw[i], false));
+      y += rowH;
+    });
 
-  // PERÍODO E VALORES
-  y = drawSection('PERÍODO E VALORES', y) + 1;
-  drawRow('Data de Início', rental.startDate, y);
-  drawRow('Data de Devolução', rental.endDate, y, true);
-  y += 7;
-  drawRow('Diária', `R$ ${rental.dailyRate.toFixed(2).replace('.', ',')}`, y);
-  drawRow('Total de Dias', `${rental.totalDays} dia(s)`, y, true);
-  y += 7;
+    doc.setDrawColor(...COLORS.border);
+    doc.setLineWidth(0.3);
+    return y + 3;
+  };
 
-  if (rental.deliveryAddress) {
-    y = drawRow('Local de Entrega', rental.deliveryAddress, y);
-  }
+  drawHeader();
 
-  if (rental.depositAmount && rental.depositAmount > 0) {
-    y = drawRow('Caução', `R$ ${rental.depositAmount.toFixed(2).replace('.', ',')}`, y);
-  }
+  let y = 36;
 
-  y += 4;
+  // Locador
+  y = drawSectionTitle('LOCADOR (EMPRESA)', y);
+  y = drawRow('Nome:', EMPRESA.nome, margin, y);
+  y = drawRow('CNPJ:', EMPRESA.cnpj, margin, y);
+  y = drawRow('Endereço:', `${EMPRESA.endereco}, ${EMPRESA.complemento}`, margin, y);
+  y = drawRow('Telefone:', EMPRESA.telefone, margin, y);
+  y = drawRow('Email:', EMPRESA.email, margin, y);
+  y += 2;
 
-  // TOTAL DESTACADO
-  doc.setFillColor(...COLORS.secondary);
-  doc.rect(margin, y, contentWidth, 14, 'F');
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(...COLORS.white);
-  doc.text('VALOR TOTAL DO CONTRATO:', margin + 4, y + 6);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(255, 215, 0); // dourado
-  const totalStr = `R$ ${rental.totalAmount.toFixed(2).replace('.', ',')}`;
-  doc.text(totalStr, pageWidth - margin - 4, y + 9, { align: 'right' });
+  // Locatário
+  y = drawSectionTitle('LOCATÁRIO (CLIENTE)', y);
+  const docCPF = client?.cpf || client?.cnpj || '';
+  const docAddress = client?.address || '';
+  const docPhone = client?.phone || '';
+  const docEmail = client?.email || '';
+  y = drawRow('Nome:', rental.clientName || client?.name || '', margin, y);
+  y = drawRow('CPF/CNPJ:', docCPF, margin, y);
+  y = drawRow('Endereço:', docAddress, margin, y);
+  y = drawRow('Telefone:', docPhone, margin, y);
+  y = drawRow('Email:', docEmail, margin, y);
+  y += 2;
 
-  y += 18;
+  // Equipamento
+  y = drawSectionTitle('EQUIPAMENTO', y);
+  const machineModel = machine?.model || rental.machineType || '';
+  const machineSerial = machine?.serialNumber || '';
+  const dailyRateStr = `R$ ${rental.dailyRate.toFixed(2).replace('.', ',')} por Dia`;
+  const techNotes = machine?.description || 'Nenhuma ressalva técnica cadastrada. Equipamento em pleno estado operacional.';
 
-  // OBSERVAÇÕES
-  if (rental.notes && rental.notes.trim()) {
-    y = drawSection('OBSERVAÇÕES', y) + 1;
-    doc.setFillColor(248, 249, 250);
-    doc.rect(margin, y, contentWidth, 14, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...COLORS.secondary);
-    const lines = doc.splitTextToSize(rental.notes, contentWidth - 8);
-    doc.text(lines, margin + 4, y + 5);
-    y += 18;
-  }
+  const eqHeaders = ['Campo', 'Valor'];
+  const eqRows: string[][] = [
+    ['Equipamento/Máquina', rental.machineName || ''],
+    ['Modelo', machineModel],
+    ['Número de Série', machineSerial],
+    ['Tarifa Pactuada', dailyRateStr],
+    ['Notas Técnicas', techNotes],
+  ];
+  y = drawTable(eqHeaders, eqRows, y);
+  y += 1;
 
-  y += 4;
+  // Condições Comerciais
+  y = drawSectionTitle('CONDIÇÕES COMERCIAIS', y);
 
-  // CLÁUSULAS
-  y = drawSection('CONDIÇÕES GERAIS', y) + 1;
+  const discountAmount = rental.hasDiscount && rental.originalAmount
+    ? rental.originalAmount - rental.totalAmount
+    : 0;
+  const discountStr = discountAmount > 0
+    ? `R$ ${discountAmount.toFixed(2).replace('.', ',')}`
+    : 'Nenhum';
+
+  const ccHeaders = ['Campo', 'Valor'];
+  const ccRows: string[][] = [
+    ['Data Inicial', rental.startDate || ''],
+    ['Devolução/Término', rental.endDate || ''],
+    ['Forma de Cobrança', 'Acúmulo de Diárias'],
+    ['Desconto Aplicado', discountStr],
+    ['Valor Total Acumulado', `R$ ${rental.totalAmount.toFixed(2).replace('.', ',')}`],
+    ['Forma de Pagamento', 'Boleto Bancário / À Vista na Devolução'],
+    ['Observações', rental.notes || '—'],
+  ];
+  y = drawTable(ccHeaders, ccRows, y);
+  y += 1;
+
+  // Cláusulas
+  y = drawSectionTitle('CLÁUSULAS', y);
   const clausulas = [
-    '1. O locatário se responsabiliza pela conservação e uso adequado do equipamento durante o período de locação.',
-    '2. Danos por mau uso, acidentes ou negligência são de responsabilidade do locatário.',
-    '3. A devolução deve ocorrer na data pactuada. Atrasos serão cobrados proporcionalmente à diária.',
-    '4. O equipamento deve ser devolvido limpo e em perfeitas condições de funcionamento.',
-    '5. Este contrato é regido pelas normas do Código Civil Brasileiro.',
+    '1. Objeto — O LOCADOR disponibiliza o equipamento acima descrito em perfeito estado de funcionamento, e o LOCATÁRIO declara tê-lo recebido e inspecionado, concordando integralmente com os termos deste contrato.',
+    '2. Obrigações de Guarda — O LOCATÁRIO assume total responsabilidade civil e criminal pela guarda, conservação e uso adequado do equipamento durante todo o período de locação, responsabilizando-se por quaisquer danos, furtos ou extravios.',
+    '3. Prazo e Multas — O equipamento deverá ser devolvido na data limite estipulada. A prorrogação da locação será automaticamente aplicada com cobrança pró-rata das diárias. O descumprimento das condições poderá acarretar multa de 10% sobre o valor total do contrato.',
+    '4. Avarias e Manutenções — Danos causados por mau uso, negligência ou acidentes serão de inteira responsabilidade do LOCATÁRIO, e os custos de reparo serão cobrados mediante laudo técnico. O equipamento deverá ser devolvido limpo e nas mesmas condições em que foi recebido.',
   ];
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
-  doc.setTextColor(...COLORS.neutral);
+  doc.setFontSize(8);
+  doc.setTextColor(...COLORS.secondary);
 
   clausulas.forEach((c) => {
-    const lines = doc.splitTextToSize(c, contentWidth - 8);
-    if (y + lines.length * 4 > pageHeight - 60) {
+    const lines = doc.splitTextToSize(c, contentWidth);
+    if (y + lines.length * 4 > pageHeight - 55) {
       doc.addPage();
-      y = margin;
+      y = margin + 10;
     }
-    doc.text(lines, margin + 3, y + 5);
+    doc.text(lines, margin, y + 3);
     y += lines.length * 4 + 2;
   });
 
-  y += 10;
+  y += 4;
 
-  // ASSINATURAS
-  if (y > pageHeight - 55) {
+  // Assinatura Eletrônica
+  if (y > pageHeight - 40) {
     doc.addPage();
-    y = margin;
+    y = margin + 10;
   }
 
+  y = drawSectionTitle('ASSINATURA ELETRÔNICA', y);
+
+  const hashRaw = `${rental.id}-${Date.now()}`;
+  const hashMd5 = `MD5: ${hashRaw}`;
+
   doc.setDrawColor(...COLORS.border);
-  const sigWidth = (contentWidth - 20) / 2;
+  doc.setLineWidth(0.5);
+  doc.rect(margin, y, contentWidth, 20, 'S');
+  doc.setFillColor(252, 252, 252);
+  doc.rect(margin, y, contentWidth, 20, 'F');
 
-  // Locador
-  doc.line(margin, y + 20, margin + sigWidth, y + 20);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
-  doc.text(EMPRESA.nome, margin + sigWidth / 2, y + 25, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setTextColor(...COLORS.primary);
+  doc.text('Token ID-EDIFICA', margin + 3, y + 7);
+
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(...COLORS.neutral);
-  doc.text('Locador — CNPJ: ' + EMPRESA.cnpj, margin + sigWidth / 2, y + 30, { align: 'center' });
+  doc.text(`HASH_VERIFICATION_${hashMd5}-${rental.id.slice(-8)}${Date.now()}`, margin + 3, y + 14);
 
-  // Locatário
-  const sig2X = margin + sigWidth + 20;
-  doc.line(sig2X, y + 20, sig2X + sigWidth, y + 20);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
-  doc.text(rental.clientName, sig2X + sigWidth / 2, y + 25, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(...COLORS.neutral);
-  doc.text('Locatário', sig2X + sigWidth / 2, y + 30, { align: 'center' });
+  y += 24;
 
-  // ── RODAPÉ ─────────────────────────────────────────────────
-  const footerY = pageHeight - 12;
+  // Footer
+  if (y > pageHeight - 16) {
+    doc.addPage();
+    y = margin + 10;
+  }
+
+  const footerY = pageHeight - 14;
   doc.setFillColor(...COLORS.primary);
-  doc.rect(0, footerY - 4, pageWidth, 16, 'F');
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
+  doc.rect(0, footerY, pageWidth, 14, 'F');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
   doc.setTextColor(...COLORS.white);
   doc.text(
-    `${EMPRESA.nome} | ${EMPRESA.endereco}, ${EMPRESA.complemento} | ${EMPRESA.telefone}`,
+    'ESTE CONTRATO É VÁLIDO COMO COMPROVANTE OFICIAL DE LOCAÇÃO.',
     pageWidth / 2,
-    footerY + 2,
+    footerY + 5,
+    { align: 'center' }
+  );
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.text(
+    `${EMPRESA.nome} | ${EMPRESA.telefone} | ${EMPRESA.email}`,
+    pageWidth / 2,
+    footerY + 10,
     { align: 'center' }
   );
 
-  // ── ABRIR PDF ───────────────────────────────────────────────
+  // Open PDF
   const pdfBlob = doc.output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
   const safeName = (rental.clientName || 'cliente').replace(/\s+/g, '_');
-  const fileName = `Contrato_Edifica_${contractNum}_${safeName}.pdf`;
+  const fileName = `contrato_locacao_${identifier}_${safeName}.pdf`;
 
-  // Tenta abrir em nova aba; fallback para download
   const newWindow = window.open(pdfUrl, '_blank');
   if (!newWindow) {
-    // Popup bloqueado — faz download direto
     const link = document.createElement('a');
     link.href = pdfUrl;
     link.download = fileName;

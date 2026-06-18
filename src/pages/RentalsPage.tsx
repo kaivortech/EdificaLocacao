@@ -168,7 +168,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
 
   const handleContract = (rental: Rental) => {
     const client = clients.find(c => c.id === rental.clientId);
-    gerarPDFContratoLocacao(rental, client);
+    const machine = machines.find(m => m.id === rental.machineId);
+    gerarPDFContratoLocacao(rental, client, machine);
   };
 
   const handleFinalize = async (rentalId: string, machineId: string) => {
