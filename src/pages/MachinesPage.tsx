@@ -87,11 +87,11 @@ const MachinesPage: React.FC<{ user: any }> = ({ user }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-secondary-500 dark:text-white">Máquinas</h2>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h2 className="text-xl md:text-2xl font-bold text-secondary-500 dark:text-white">Máquinas</h2>
         <div className="flex gap-2">
-          <button onClick={() => setIsEstoqueOpen(true)} className="btn-secondary">📦 Estoque</button>
-          <button onClick={openAddForm} className="btn-primary">+ Nova Máquina</button>
+          <button onClick={() => setIsEstoqueOpen(true)} className="btn-secondary text-xs md:text-sm">📦 Estoque</button>
+          <button onClick={openAddForm} className="btn-primary text-xs md:text-sm">+ Nova Máquina</button>
         </div>
       </div>
 

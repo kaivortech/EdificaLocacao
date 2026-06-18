@@ -170,9 +170,9 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-secondary-500 dark:text-white">Locações</h2>
-        <button onClick={openAddForm} className="btn-primary">+ Nova Locação</button>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <h2 className="text-xl md:text-2xl font-bold text-secondary-500 dark:text-white">Locações</h2>
+        <button onClick={openAddForm} className="btn-primary text-xs md:text-sm w-fit">+ Nova Locação</button>
       </div>
 
       {feedback && (

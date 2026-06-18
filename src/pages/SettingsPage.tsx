@@ -68,7 +68,7 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-2xl">
+    <div className="space-y-6 animate-fade-in max-w-full md:max-w-2xl">
       <h2 className="text-2xl font-bold text-secondary-500 dark:text-white">Configurações</h2>
 
       {feedback && (
@@ -103,7 +103,7 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <span className="block text-neutral-500">Nome</span>
               <span className="font-medium text-secondary-500 dark:text-white">{user?.displayName}</span>

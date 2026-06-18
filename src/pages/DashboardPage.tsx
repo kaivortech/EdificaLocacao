@@ -93,47 +93,47 @@ const DashboardPage: React.FC<{ user: any }> = ({ user }) => {
     <div className="space-y-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-secondary-500 dark:text-white">Visão Geral</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card border-l-4 border-l-primary flex flex-col justify-center">
-          <p className="text-sm text-neutral-500 font-medium">Máquinas Disponíveis</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="card border-l-4 border-l-primary flex flex-col justify-center p-4 md:p-6">
+          <p className="text-xs md:text-sm text-neutral-500 font-medium">Máquinas Disponíveis</p>
           <div className="flex items-baseline gap-2 mt-2">
-            <h3 className="text-3xl font-bold text-secondary-500 dark:text-white">{stats.availableMachines}</h3>
-            <span className="text-sm text-neutral-400">de {stats.totalMachines}</span>
+            <h3 className="text-2xl md:text-3xl font-bold text-secondary-500 dark:text-white">{stats.availableMachines}</h3>
+            <span className="text-xs md:text-sm text-neutral-400">de {stats.totalMachines}</span>
           </div>
         </div>
         
-        <div className="card border-l-4 border-l-green-500 flex flex-col justify-center">
-          <p className="text-sm text-neutral-500 font-medium">Locações Ativas</p>
+        <div className="card border-l-4 border-l-green-500 flex flex-col justify-center p-4 md:p-6">
+          <p className="text-xs md:text-sm text-neutral-500 font-medium">Locações Ativas</p>
           <div className="flex items-baseline gap-2 mt-2">
-            <h3 className="text-3xl font-bold text-secondary-500 dark:text-white">{stats.activeRentals}</h3>
-            <span className="text-sm text-neutral-400">neste momento</span>
+            <h3 className="text-2xl md:text-3xl font-bold text-secondary-500 dark:text-white">{stats.activeRentals}</h3>
+            <span className="text-xs md:text-sm text-neutral-400">neste momento</span>
           </div>
         </div>
 
-        <div className="card border-l-4 border-l-blue-500 flex flex-col justify-center">
-          <p className="text-sm text-neutral-500 font-medium">Faturamento do Mês</p>
+        <div className="card border-l-4 border-l-blue-500 flex flex-col justify-center p-4 md:p-6">
+          <p className="text-xs md:text-sm text-neutral-500 font-medium">Faturamento do Mês</p>
           <div className="flex items-baseline gap-2 mt-2">
-            <h3 className="text-3xl font-bold text-secondary-500 dark:text-white">
+            <h3 className="text-xl md:text-3xl font-bold text-secondary-500 dark:text-white break-all">
               R$ {stats.monthlyRevenue.toFixed(2)}
             </h3>
           </div>
         </div>
 
-        <div className="card border-l-4 border-l-purple-500 flex flex-col justify-center">
-          <p className="text-sm text-neutral-500 font-medium">Total de Clientes</p>
+        <div className="card border-l-4 border-l-purple-500 flex flex-col justify-center p-4 md:p-6">
+          <p className="text-xs md:text-sm text-neutral-500 font-medium">Total de Clientes</p>
           <div className="flex items-baseline gap-2 mt-2">
-            <h3 className="text-3xl font-bold text-secondary-500 dark:text-white">{stats.totalClients}</h3>
-            <span className="text-sm text-neutral-400">cadastrados</span>
+            <h3 className="text-2xl md:text-3xl font-bold text-secondary-500 dark:text-white">{stats.totalClients}</h3>
+            <span className="text-xs md:text-sm text-neutral-400">cadastrados</span>
           </div>
         </div>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Monthly Revenue */}
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-secondary-500 dark:text-white mb-4">Faturamento Mensal</h3>
-          <ResponsiveContainer width="100%" height={280}>
+        <div className="card p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-bold text-secondary-500 dark:text-white mb-4">Faturamento Mensal</h3>
+          <ResponsiveContainer width="100%" height={240} minHeight={200}>
             <BarChart data={(() => {
               const now = new Date();
               const data = [];
@@ -160,9 +160,9 @@ const DashboardPage: React.FC<{ user: any }> = ({ user }) => {
         </div>
 
         {/* Rental Status */}
-        <div className="card p-6">
-          <h3 className="text-lg font-bold text-secondary-500 dark:text-white mb-4">Status das Locações</h3>
-          <ResponsiveContainer width="100%" height={280}>
+        <div className="card p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-bold text-secondary-500 dark:text-white mb-4">Status das Locações</h3>
+          <ResponsiveContainer width="100%" height={240} minHeight={200}>
             <PieChart>
               <Pie
                 data={[
@@ -192,9 +192,9 @@ const DashboardPage: React.FC<{ user: any }> = ({ user }) => {
       </div>
 
       {/* Machine Status */}
-      <div className="card p-6">
-        <h3 className="text-lg font-bold text-secondary-500 dark:text-white mb-4">Status das Máquinas</h3>
-        <ResponsiveContainer width="100%" height={250}>
+      <div className="card p-4 md:p-6">
+        <h3 className="text-base md:text-lg font-bold text-secondary-500 dark:text-white mb-4">Status das Máquinas</h3>
+        <ResponsiveContainer width="100%" height={220} minHeight={180}>
           <BarChart
             data={[
               { name: 'Disponíveis', quantidade: stats.availableMachines, fill: CHART_COLORS[1] },

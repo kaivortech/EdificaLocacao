@@ -50,6 +50,7 @@ import SettingsPage from './pages/SettingsPage';
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChange((currentUser) => {
@@ -81,10 +82,10 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute user={user}>
               <div className="flex h-screen bg-tertiary-200 dark:bg-secondary-800">
-                <Sidebar />
+                <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
                 <div className="flex-1 flex flex-col overflow-hidden">
-                  <Header user={user} />
-                  <main className="flex-1 overflow-x-hidden overflow-y-auto bg-tertiary-200 dark:bg-secondary-800 p-6">
+                  <Header user={user} onToggleSidebar={() => setSidebarOpen(o => !o)} />
+                  <main className="flex-1 overflow-x-hidden overflow-y-auto bg-tertiary-200 dark:bg-secondary-800 p-4 md:p-6">
                     <Routes>
                       <Route path="/dashboard" element={<DashboardPage user={user} />} />
                       <Route path="/machines" element={<MachinesPage user={user} />} />
