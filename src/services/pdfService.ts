@@ -21,19 +21,18 @@ const COLORS = {
   border: [200, 200, 200] as [number, number, number],
 };
 
-let logoBase64: string | null = null;
+let logoImg: HTMLImageElement | null = null;
 
-const getLogoBase64 = async (): Promise<string> => {
-  if (logoBase64) return logoBase64;
-  const response = await fetch(logoEdifica);
-  const blob = await response.blob();
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      logoBase64 = reader.result as string;
-      resolve(logoBase64);
+const getLogoImage = (): Promise<HTMLImageElement> => {
+  if (logoImg) return Promise.resolve(logoImg);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      logoImg = img;
+      resolve(img);
     };
-    reader.readAsDataURL(blob);
+    img.onerror = reject;
+    img.src = logoEdifica;
   });
 };
 
@@ -65,7 +64,7 @@ export const gerarPDFContratoLocacao = async (
     const logoW = 22;
     const logoX = pageWidth - margin - logoW;
     const logoY = (headerH - logoH) / 2;
-    const logo = await getLogoBase64();
+    const logo = await getLogoImage();
     doc.addImage(logo, 'JPEG', logoX, logoY, logoW, logoH);
 
     doc.setFont('helvetica', 'normal');

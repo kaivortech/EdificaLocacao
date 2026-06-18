@@ -103,6 +103,18 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+
+    if (formData.endDate) {
+      const start = parseDateBR(formData.startDate);
+      const end = parseDateBR(formData.endDate);
+      if (end < start) {
+        setSubmitting(false);
+        setFeedback({ message: 'A data de fim não pode ser anterior à data de início.', type: 'error' });
+        setTimeout(() => setFeedback(null), 5000);
+        return;
+      }
+    }
+
     const machine = editingRental
       ? machines.find((m) => m.id === formData.machineId) || { dailyRate: 0 }
       : machines.find((m) => m.id === formData.machineId);
