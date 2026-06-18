@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Rental, Client, Machine } from '../types';
+import logoEdifica from '../assets/logo-edifica.jpg';
 
 const EMPRESA = {
   nome: 'Edifica Locações de Máquinas e Equipamentos Ltda.',
@@ -20,11 +21,27 @@ const COLORS = {
   border: [200, 200, 200] as [number, number, number],
 };
 
-export const gerarPDFContratoLocacao = (
+let logoBase64: string | null = null;
+
+const getLogoBase64 = async (): Promise<string> => {
+  if (logoBase64) return logoBase64;
+  const response = await fetch(logoEdifica);
+  const blob = await response.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      logoBase64 = reader.result as string;
+      resolve(logoBase64);
+    };
+    reader.readAsDataURL(blob);
+  });
+};
+
+export const gerarPDFContratoLocacao = async (
   rental: Rental,
   client?: Client | null,
   machine?: Machine | null
-): void => {
+): Promise<void> => {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -34,14 +51,21 @@ export const gerarPDFContratoLocacao = (
   const identifier = `LOC-RENT-${rental.id.slice(-3)}-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`;
   const emitDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  const drawHeader = () => {
+  const drawHeader = async () => {
     doc.setFillColor(...COLORS.primary);
     doc.rect(0, 0, pageWidth, 28, 'F');
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(...COLORS.white);
-    doc.text('CONTRATO DE LOCAÇÃO DE EQUIPAMENTO E ACESSÓRIOS', margin, 12);
+    doc.text('Edifica Locação', margin, 12);
+
+    const logoH = 14;
+    const logoW = 14;
+    const logoX = pageWidth - margin - logoW;
+    const logoY = (28 - logoH) / 2;
+    const logo = await getLogoBase64();
+    doc.addImage(logo, 'JPEG', logoX, logoY, logoW, logoH);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
@@ -110,7 +134,7 @@ export const gerarPDFContratoLocacao = (
     return y + 3;
   };
 
-  drawHeader();
+  await drawHeader();
 
   let y = 36;
 
