@@ -1,37 +1,13 @@
 import React, { useState } from 'react';
-import { deleteUserAccount, updateUserProfile, changePassword } from '../services/authService';
+import { deleteUserAccount, changePassword } from '../services/authService';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(user?.displayName || '');
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [passwordData, setPasswordData] = useState({ current: '', newPass: '', confirm: '' });
   const [changingPassword, setChangingPassword] = useState(false);
-
-  const handleSave = async () => {
-    if (!name.trim()) {
-      setFeedback({ message: 'O nome não pode ficar vazio.', type: 'error' });
-      setTimeout(() => setFeedback(null), 5000);
-      return;
-    }
-    try {
-      await updateUserProfile(user.uid, { name: name.trim() });
-      setIsEditing(false);
-      setFeedback({ message: 'Perfil atualizado com sucesso!', type: 'success' });
-      setTimeout(() => setFeedback(null), 5000);
-    } catch (e: any) {
-      const msg = e.code === 'permission-denied'
-        ? 'Erro de permissão ao salvar. Verifique as regras de segurança do Firestore.'
-        : e.code === 'not-found'
-        ? 'Documento do usuário não encontrado. Entre em contato com o suporte.'
-        : e.message || 'Erro ao atualizar perfil.';
-      setFeedback({ message: msg, type: 'error' });
-      setTimeout(() => setFeedback(null), 5000);
-    }
-  };
 
   const handleDelete = async () => {
     setShowDeleteConfirm(true);
@@ -100,42 +76,19 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
       )}
       
       <div className="card space-y-4">
-        <div className="flex justify-between items-center border-b pb-2">
-          <h3 className="text-lg font-bold text-secondary-500 dark:text-white dark:border-secondary-600">Perfil</h3>
-          {!isEditing && (
-            <button onClick={() => setIsEditing(true)} className="btn-ghost text-sm text-yellow-500 hover:text-yellow-700" title="Editar">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
-          )}
+        <div className="border-b pb-2">
+          <h3 className="text-lg font-bold text-secondary-500 dark:text-white">Perfil</h3>
         </div>
-
-        {isEditing ? (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-neutral-500 mb-1">Nome</label>
-              <input type="text" className="input-base" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm text-neutral-500 mb-1">E-mail</label>
-              <input type="email" className="input-base" value={user?.email || ''} disabled />
-            </div>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => { setIsEditing(false); setName(user?.displayName || ''); }} className="btn-ghost">Cancelar</button>
-              <button onClick={handleSave} className="btn-primary">Salvar</button>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="block text-neutral-500">Nome</span>
+            <span className="font-medium text-secondary-500 dark:text-white">{user?.displayName}</span>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="block text-neutral-500">Nome</span>
-              <span className="font-medium text-secondary-500 dark:text-white">{user?.displayName}</span>
-            </div>
-            <div>
-              <span className="block text-neutral-500">E-mail</span>
-              <span className="font-medium text-secondary-500 dark:text-white">{user?.email}</span>
-            </div>
+          <div>
+            <span className="block text-neutral-500">E-mail</span>
+            <span className="font-medium text-secondary-500 dark:text-white">{user?.email}</span>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="card space-y-4">
