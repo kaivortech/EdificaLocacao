@@ -90,6 +90,15 @@ body {
   animation: scaleIn 0.25s ease-out forwards;
 }
 
+@keyframes slideInCenter {
+  0% { transform: translateX(-50%) translateX(-20px); opacity: 0; }
+  100% { transform: translateX(-50%); opacity: 1; }
+}
+
+.animate-slide-in-center {
+  animation: slideInCenter 0.3s ease-out;
+}
+
 /* Utilitários */
 .glass {
   background: rgba(255, 255, 255, 0.85);
