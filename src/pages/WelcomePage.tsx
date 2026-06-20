@@ -156,7 +156,7 @@ const WelcomePage: React.FC = () => {
                 </div>
               </div>
               {isRegisterOpen && (
-                <div className="absolute left-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in-center z-50 w-[calc(100vw-32px)] sm:w-auto sm:min-w-[420px] max-w-[420px]">
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in-center z-50 w-[calc(100vw-32px)] sm:w-auto sm:min-w-[420px] max-w-[420px]">
                   <form onSubmit={handleRegister} className="space-y-3">
                     <div className="flex flex-col gap-3">
                       <input
