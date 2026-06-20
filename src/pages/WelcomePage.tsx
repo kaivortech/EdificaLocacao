@@ -207,32 +207,32 @@ const WelcomePage: React.FC = () => {
                >
                  Fazer Login
                </button>
-              {isLoginOpen && (
-                <div className="absolute left-full top-0 ml-2 flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in z-50">
-                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
-                  <form onSubmit={handleLogin} className="flex items-center gap-1.5">
-                    <input
-                      type="email"
-                      placeholder="E-mail"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="password"
-                      placeholder="Senha"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={loading}>
-                      {loading ? '...' : 'Entrar'}
-                    </button>
-                  </form>
-                </div>
-              )}
+               {isLoginOpen && (
+                 <div className="flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
+                   {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
+                   <form onSubmit={handleLogin} className="flex items-center gap-1.5">
+                     <input
+                       type="email"
+                       placeholder="E-mail"
+                       className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
+                       value={email}
+                       onChange={(e) => setEmail(e.target.value)}
+                       required
+                     />
+                     <input
+                       type="password"
+                       placeholder="Senha"
+                       className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
+                       value={password}
+                       onChange={(e) => setPassword(e.target.value)}
+                       required
+                     />
+                     <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={loading}>
+                       {loading ? '...' : 'Entrar'}
+                     </button>
+                   </form>
+                 </div>
+               )}
              </div>
            </div>
         </div>
