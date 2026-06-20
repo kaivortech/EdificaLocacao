@@ -121,7 +121,7 @@ const WelcomePage: React.FC = () => {
                 Cadastre-se
               </button>
               {isRegisterOpen && (
-                <div className="absolute left-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 min-w-[420px]">
+                <div className="absolute left-0 sm:left-auto right-0 sm:right-auto top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 w-[calc(100vw-32px)] sm:w-auto sm:min-w-[420px] max-w-[420px]">
                   <form onSubmit={handleRegister} className="space-y-3">
                     <div className="flex flex-col gap-3">
                       <input
@@ -200,7 +200,7 @@ const WelcomePage: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="relative flex items-center gap-2">
               <button 
                 onClick={() => { setIsLoginOpen(!isLoginOpen); if (!isLoginOpen) setIsRegisterOpen(false); }} 
                 className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm whitespace-nowrap"
@@ -208,13 +208,13 @@ const WelcomePage: React.FC = () => {
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
-                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
-                  <form onSubmit={handleLogin} className="flex items-center gap-1.5">
+                <div className="absolute right-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-3 animate-slide-in z-50 w-64">
+                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs mb-2 text-center">{error}</div>}
+                  <form onSubmit={handleLogin} className="flex flex-col gap-2">
                     <input
                       type="email"
                       placeholder="E-mail"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
+                      className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -222,12 +222,12 @@ const WelcomePage: React.FC = () => {
                     <input
                       type="password"
                       placeholder="Senha"
-                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
+                      className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
-                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={loading}>
+                    <button type="submit" className="btn-primary text-xs py-2 rounded-lg w-full" disabled={loading}>
                       {loading ? '...' : 'Entrar'}
                     </button>
                   </form>
@@ -240,7 +240,7 @@ const WelcomePage: React.FC = () => {
 
       {/* HERO SECTION */}
       <main className="flex-1 flex flex-col">
-        <section className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+        <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6">
           <div className="absolute inset-0 -z-20">
             <img src={heroConstruction} alt="" className="w-full h-full object-cover opacity-20" />
             <div className="absolute inset-0 bg-gradient-to-br from-secondary-900/95 via-secondary-900/90 to-secondary-900/95"></div>
@@ -251,7 +251,7 @@ const WelcomePage: React.FC = () => {
           <div className="max-w-6xl mx-auto z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-left animate-slide-up">
 
-              <h2 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 sm:mb-6 leading-snug sm:leading-tight">
                 Gestão inteligente para sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-yellow-500">frota de máquinas</span>
               </h2>
               <p className="text-lg md:text-xl text-neutral-400 mb-10 max-w-xl leading-relaxed">
@@ -307,7 +307,7 @@ const WelcomePage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <span className="text-primary font-semibold text-sm uppercase tracking-widest">Sobre Nós</span>
-              <h3 className="text-4xl font-bold mb-4 mt-3">Conheça a Edifica Locação</h3>
+              <h3 className="text-2xl sm:text-4xl font-bold mb-4 mt-3">Conheça a Edifica Locação</h3>
               <p className="text-neutral-400 max-w-3xl mx-auto leading-relaxed">
                 Somos especializados em gestão de locação de máquinas e equipamentos para construção civil. 
                 Com anos de experiência no mercado, oferecemos soluções completas para otimizar o controle 
@@ -347,7 +347,7 @@ const WelcomePage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <span className="text-primary font-semibold text-sm uppercase tracking-widest">Funcionalidades</span>
-              <h3 className="text-4xl font-bold mb-4 mt-3">Tudo que você precisa para crescer</h3>
+              <h3 className="text-2xl sm:text-4xl font-bold mb-4 mt-3">Tudo que você precisa para crescer</h3>
               <p className="text-neutral-400 max-w-2xl mx-auto">Ferramentas pensadas para o dia a dia da locação na construção civil.</p>
             </div>
             
@@ -403,7 +403,7 @@ const WelcomePage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary-900 to-yellow-500/5"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50rem] h-[50rem] bg-primary/5 rounded-full blur-3xl"></div>
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <h3 className="text-4xl md:text-5xl font-bold mb-6">Pronto para transformar sua locadora?</h3>
+            <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-6">Pronto para transformar sua locadora?</h3>
             <p className="text-lg text-neutral-400 mb-10 max-w-2xl mx-auto">
               Junte-se a centenas de empresas que já modernizaram sua gestão de locação com a Edifica.
             </p>
