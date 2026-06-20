@@ -208,13 +208,13 @@ const WelcomePage: React.FC = () => {
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="absolute right-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-3 animate-slide-in z-50 w-64">
-                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs mb-2 text-center">{error}</div>}
-                  <form onSubmit={handleLogin} className="flex flex-col gap-2">
+                <div className="flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
+                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
+                  <form onSubmit={handleLogin} className="flex items-center gap-1.5">
                     <input
                       type="email"
                       placeholder="E-mail"
-                      className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-28"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -222,12 +222,12 @@ const WelcomePage: React.FC = () => {
                     <input
                       type="password"
                       placeholder="Senha"
-                      className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                      className="text-xs py-1.5 px-2 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-24"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
-                    <button type="submit" className="btn-primary text-xs py-2 rounded-lg w-full" disabled={loading}>
+                    <button type="submit" className="btn-primary text-xs px-3 py-1.5 rounded-lg whitespace-nowrap" disabled={loading}>
                       {loading ? '...' : 'Entrar'}
                     </button>
                   </form>
