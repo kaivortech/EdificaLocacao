@@ -15,7 +15,6 @@ import {
   doc,
   setDoc,
   getDoc,
-  updateDoc,
   deleteDoc,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -102,18 +101,26 @@ export const updateUserProfile = async (
   const currentUser = auth.currentUser;
   if (!currentUser) throw new Error('Nenhum usuário autenticado.');
 
-  if (data.name) {
+  const trimmedName = data.name?.trim();
+
+  if (trimmedName) {
     try {
-      await updateProfile(currentUser, { displayName: data.name });
+      await updateProfile(currentUser, { displayName: trimmedName });
     } catch (e) {
       console.warn('Erro ao atualizar displayName no Auth (não crítico):', e);
     }
   }
 
-  await updateDoc(doc(db, 'users', uid), {
+  const updateData: Record<string, any> = {
     ...data,
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  if (data.name !== undefined) {
+    updateData.name = trimmedName || '';
+  }
+
+  await setDoc(doc(db, 'users', uid), updateData, { merge: true });
 };
 
 // ============================================================

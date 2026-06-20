@@ -12,8 +12,13 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
   const [changingPassword, setChangingPassword] = useState(false);
 
   const handleSave = async () => {
+    if (!name.trim()) {
+      setFeedback({ message: 'O nome não pode ficar vazio.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
     try {
-      await updateUserProfile(user.uid, { name });
+      await updateUserProfile(user.uid, { name: name.trim() });
       setIsEditing(false);
       setFeedback({ message: 'Perfil atualizado com sucesso!', type: 'success' });
       setTimeout(() => setFeedback(null), 5000);
@@ -27,6 +32,13 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
     setShowDeleteConfirm(true);
   };
 
+  const passwordChecks = {
+    upper: /[A-Z]/.test(passwordData.newPass),
+    lower: /[a-z]/.test(passwordData.newPass),
+    number: /[0-9]/.test(passwordData.newPass),
+  };
+  const allPass = passwordChecks.upper && passwordChecks.lower && passwordChecks.number;
+
   const handleChangePassword = async () => {
     if (!passwordData.current || !passwordData.newPass || !passwordData.confirm) {
       setFeedback({ message: 'Preencha todos os campos de senha.', type: 'error' });
@@ -35,6 +47,11 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
     }
     if (passwordData.newPass.length < 6) {
       setFeedback({ message: 'A nova senha deve ter no mínimo 6 caracteres.', type: 'error' });
+      setTimeout(() => setFeedback(null), 5000);
+      return;
+    }
+    if (!allPass) {
+      setFeedback({ message: 'A senha deve conter letras maiúsculas, minúsculas e números.', type: 'error' });
       setTimeout(() => setFeedback(null), 5000);
       return;
     }
@@ -131,6 +148,23 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
             value={passwordData.confirm}
             onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })} />
         </div>
+        {passwordData.newPass && (
+          <div className="flex items-center gap-3 text-xs">
+            <span className={`flex items-center gap-1 ${passwordChecks.upper ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`}>
+              <span className={`w-3 h-3 rounded-full border ${passwordChecks.upper ? 'bg-green-500 border-green-500' : 'border-neutral-500'}`} />
+              A-Z
+            </span>
+            <span className={`flex items-center gap-1 ${passwordChecks.lower ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`}>
+              <span className={`w-3 h-3 rounded-full border ${passwordChecks.lower ? 'bg-green-500 border-green-500' : 'border-neutral-500'}`} />
+              a-z
+            </span>
+            <span className={`flex items-center gap-1 ${passwordChecks.number ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`}>
+              <span className={`w-3 h-3 rounded-full border ${passwordChecks.number ? 'bg-green-500 border-green-500' : 'border-neutral-500'}`} />
+              0-9
+            </span>
+            {allPass && <span className="text-green-600 dark:text-green-400 font-medium">✓ Senha segura</span>}
+          </div>
+        )}
         <div className="flex justify-end">
           <button onClick={handleChangePassword} disabled={changingPassword} className="btn-primary">
             {changingPassword ? 'Alterando...' : 'Alterar Senha'}

@@ -141,16 +141,31 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     };
 
     if (editingRental) {
+      const oldMachineId = editingRental.machineId;
+      const newMachineId = formData.machineId;
+
       await firestoreService.updateRental({
         id: editingRental.id,
         ...rentalData,
       });
+
+      if (oldMachineId !== newMachineId) {
+        const otherActiveForOld = rentals.filter(
+          r => r.machineId === oldMachineId && r.id !== editingRental.id && r.status === 'active'
+        );
+        if (otherActiveForOld.length === 0) {
+          await firestoreService.updateMachine({ id: oldMachineId, status: 'available' });
+        }
+        await firestoreService.updateMachine({ id: newMachineId, status: 'rented' });
+      }
+
       setFeedback({ message: 'Locação atualizada com sucesso!', type: 'success' });
     } else {
       await firestoreService.addRental({
         ...rentalData,
         status: 'active',
       });
+      await firestoreService.updateMachine({ id: formData.machineId, status: 'rented' });
       setFeedback({ message: 'Locação cadastrada com sucesso!', type: 'success' });
     }
 
@@ -170,7 +185,19 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
+      const rental = rentals.find(r => r.id === deleteTarget);
+
       await firestoreService.deleteRental(deleteTarget);
+
+      if (rental?.machineId) {
+        const otherActiveRentals = rentals.filter(
+          r => r.machineId === rental.machineId && r.id !== deleteTarget && r.status === 'active'
+        );
+        if (otherActiveRentals.length === 0) {
+          await firestoreService.updateMachine({ id: rental.machineId, status: 'available' });
+        }
+      }
+
       setDeleteTarget(null);
       setFeedback({ message: 'Locação excluída com sucesso!', type: 'error' });
       setTimeout(() => setFeedback(null), 5000);
