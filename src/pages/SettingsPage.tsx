@@ -23,7 +23,12 @@ const SettingsPage: React.FC<{ user: any }> = ({ user }) => {
       setFeedback({ message: 'Perfil atualizado com sucesso!', type: 'success' });
       setTimeout(() => setFeedback(null), 5000);
     } catch (e: any) {
-      setFeedback({ message: e.message || 'Erro ao atualizar perfil.', type: 'error' });
+      const msg = e.code === 'permission-denied'
+        ? 'Erro de permissão ao salvar. Verifique as regras de segurança do Firestore.'
+        : e.code === 'not-found'
+        ? 'Documento do usuário não encontrado. Entre em contato com o suporte.'
+        : e.message || 'Erro ao atualizar perfil.';
+      setFeedback({ message: msg, type: 'error' });
       setTimeout(() => setFeedback(null), 5000);
     }
   };

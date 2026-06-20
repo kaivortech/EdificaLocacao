@@ -16,6 +16,7 @@ import {
   setDoc,
   getDoc,
   deleteDoc,
+  updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -120,7 +121,9 @@ export const updateUserProfile = async (
     updateData.name = trimmedName || '';
   }
 
-  await setDoc(doc(db, 'users', uid), updateData, { merge: true });
+  Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+  await updateDoc(doc(db, 'users', uid), updateData);
 };
 
 // ============================================================
