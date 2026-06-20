@@ -113,103 +113,103 @@ const WelcomePage: React.FC = () => {
           </div>
           
            <div className="flex items-center gap-2 transition-all duration-300">
-            <div className="relative flex items-center gap-2">
-              <button 
-                onClick={() => { setIsRegisterOpen(!isRegisterOpen); if (!isRegisterOpen) setIsLoginOpen(false); }}
-                className="text-sm text-neutral-400 hover:text-white transition-colors whitespace-nowrap"
-              >
-                Cadastre-se
-              </button>
-              {isRegisterOpen && (
-                <div className="absolute left-0 right-0 sm:left-auto top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 w-[calc(100vw-32px)] sm:w-auto sm:min-w-[420px] max-w-[420px]">
-                  <form onSubmit={handleRegister} className="space-y-3">
-                    <div className="flex flex-col gap-3">
-                      <input
-                        type="text"
-                        placeholder="Nome"
-                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
-                        value={regName}
-                        onChange={(e) => setRegName(e.target.value)}
-                        required
-                      />
-                      <input
-                        type="email"
-                        placeholder="E-mail"
-                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
-                        value={regEmail}
-                        onChange={(e) => setRegEmail(e.target.value)}
-                        required
-                      />
-                      <div className="relative pb-7">
-                        <input
-                          type="text"
-                          placeholder="CPF"
-                          className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
-                          value={regCpf}
-                          onChange={(e) => setRegCpf(formatCPF(e.target.value))}
-                          required
-                        />
-                        {cpfValido === true && (
-                          <span className="absolute bottom-1 left-0 text-[10px] text-green-400 font-medium leading-none">CPF válido</span>
-                        )}
-                        {cpfValido === false && (
-                          <span className="absolute bottom-1 left-0 text-[10px] text-red-400 font-medium leading-none">CPF inválido</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="password"
-                        placeholder="Senha"
-                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
-                        value={regPassword}
-                        onChange={(e) => setRegPassword(e.target.value)}
-                        required
-                      />
-                      <input
-                        type="password"
-                        placeholder="Confirmar"
-                        className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
-                        value={regConfirmPassword}
-                        onChange={(e) => setRegConfirmPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                    {regPassword && (
-                      <div className="flex items-center gap-3 text-[10px]">
-                        <span className={`flex items-center gap-1 ${passwordChecks.upper ? 'text-green-400' : 'text-neutral-500'}`}>
-                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.upper ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
-                          A-Z
-                        </span>
-                        <span className={`flex items-center gap-1 ${passwordChecks.lower ? 'text-green-400' : 'text-neutral-500'}`}>
-                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.lower ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
-                          a-z
-                        </span>
-                        <span className={`flex items-center gap-1 ${passwordChecks.number ? 'text-green-400' : 'text-neutral-500'}`}>
-                          <span className={`w-3 h-3 rounded-full border ${passwordChecks.number ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
-                          0-9
-                        </span>
-                        {allPass && <span className="text-green-400 font-medium">✓ Senha segura</span>}
-                      </div>
-                    )}
-                    {regError && <div className="text-red-400 text-xs">{regError}</div>}
-                    <button type="submit" className="btn-primary text-xs px-4 py-2 rounded-lg w-full" disabled={regLoading || (regPassword.length > 0 && !allPass)}>
-                      {regLoading ? 'Cadastrando...' : 'Cadastrar'}
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
-            <div className="relative flex items-center gap-2">
-              <button 
-                onClick={() => { setIsLoginOpen(!isLoginOpen); if (!isLoginOpen) setIsRegisterOpen(false); }} 
-                className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm whitespace-nowrap"
-              >
-                Fazer Login
-              </button>
+             <div className="relative flex items-center gap-2">
+               <button 
+                 onClick={() => { setIsRegisterOpen(!isRegisterOpen); if (!isRegisterOpen) setIsLoginOpen(false); }}
+                 className="text-sm text-neutral-400 hover:text-white transition-colors whitespace-nowrap"
+               >
+                 Cadastre-se
+               </button>
+               {isRegisterOpen && (
+                 <div className="absolute right-0 top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-4 animate-slide-in z-50 w-[calc(100vw-32px)] sm:w-auto sm:min-w-[420px] max-w-[420px]">
+                   <form onSubmit={handleRegister} className="space-y-3">
+                     <div className="flex flex-col gap-3">
+                       <input
+                         type="text"
+                         placeholder="Nome"
+                         className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                         value={regName}
+                         onChange={(e) => setRegName(e.target.value)}
+                         required
+                       />
+                       <input
+                         type="email"
+                         placeholder="E-mail"
+                         className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                         value={regEmail}
+                         onChange={(e) => setRegEmail(e.target.value)}
+                         required
+                       />
+                       <div className="relative pb-7">
+                         <input
+                           type="text"
+                           placeholder="CPF"
+                           className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                           value={regCpf}
+                           onChange={(e) => setRegCpf(formatCPF(e.target.value))}
+                           required
+                         />
+                         {cpfValido === true && (
+                           <span className="absolute bottom-1 left-0 text-[10px] text-green-400 font-medium leading-none">CPF válido</span>
+                         )}
+                         {cpfValido === false && (
+                           <span className="absolute bottom-1 left-0 text-[10px] text-red-400 font-medium leading-none">CPF inválido</span>
+                         )}
+                       </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-3">
+                       <input
+                         type="password"
+                         placeholder="Senha"
+                         className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                         value={regPassword}
+                         onChange={(e) => setRegPassword(e.target.value)}
+                         required
+                       />
+                       <input
+                         type="password"
+                         placeholder="Confirmar"
+                         className="text-xs py-2 px-3 bg-neutral-400 border-0 text-secondary-900 placeholder-neutral-500 rounded-lg outline-none w-full"
+                         value={regConfirmPassword}
+                         onChange={(e) => setRegConfirmPassword(e.target.value)}
+                         required
+                       />
+                     </div>
+                     {regPassword && (
+                       <div className="flex items-center gap-3 text-[10px]">
+                         <span className={`flex items-center gap-1 ${passwordChecks.upper ? 'text-green-400' : 'text-neutral-500'}`}>
+                           <span className={`w-3 h-3 rounded-full border ${passwordChecks.upper ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                           A-Z
+                         </span>
+                         <span className={`flex items-center gap-1 ${passwordChecks.lower ? 'text-green-400' : 'text-neutral-500'}`}>
+                           <span className={`w-3 h-3 rounded-full border ${passwordChecks.lower ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                           a-z
+                         </span>
+                         <span className={`flex items-center gap-1 ${passwordChecks.number ? 'text-green-400' : 'text-neutral-500'}`}>
+                           <span className={`w-3 h-3 rounded-full border ${passwordChecks.number ? 'bg-green-400 border-green-400' : 'border-neutral-500'}`} />
+                           0-9
+                         </span>
+                         {allPass && <span className="text-green-400 font-medium">✓ Senha segura</span>}
+                       </div>
+                     )}
+                     {regError && <div className="text-red-400 text-xs">{regError}</div>}
+                     <button type="submit" className="btn-primary text-xs px-4 py-2 rounded-lg w-full" disabled={regLoading || (regPassword.length > 0 && !allPass)}>
+                       {regLoading ? 'Cadastrando...' : 'Cadastrar'}
+                     </button>
+                   </form>
+                 </div>
+               )}
+             </div>
+             <div className="relative flex items-center gap-2">
+               <button 
+                 onClick={() => { setIsLoginOpen(!isLoginOpen); if (!isLoginOpen) setIsRegisterOpen(false); }} 
+                 className="btn-primary px-5 py-2 rounded-full shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 text-sm whitespace-nowrap"
+               >
+                 Fazer Login
+               </button>
               {isLoginOpen && (
-                <div className="absolute left-0 right-0 sm:left-auto top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in z-50">
-                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap text-center mb-1">{error}</div>}
+                <div className="absolute left-full top-0 ml-2 flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in z-50">
+                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
                   <form onSubmit={handleLogin} className="flex items-center gap-1.5">
                     <input
                       type="email"
@@ -233,8 +233,8 @@ const WelcomePage: React.FC = () => {
                   </form>
                 </div>
               )}
-            </div>
-          </div>
+             </div>
+           </div>
         </div>
       </nav>
 
