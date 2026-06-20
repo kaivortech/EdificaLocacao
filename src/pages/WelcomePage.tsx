@@ -208,8 +208,8 @@ const WelcomePage: React.FC = () => {
                 Fazer Login
               </button>
               {isLoginOpen && (
-                <div className="flex items-center gap-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in">
-                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap">{error}</div>}
+                <div className="absolute left-0 right-0 sm:left-auto top-full mt-2 bg-secondary-800 rounded-2xl shadow-2xl border border-white/10 p-2 animate-slide-in z-50">
+                  {error && <div className="bg-red-500/10 text-red-400 px-2 py-1 rounded-lg text-xs whitespace-nowrap text-center mb-1">{error}</div>}
                   <form onSubmit={handleLogin} className="flex items-center gap-1.5">
                     <input
                       type="email"
