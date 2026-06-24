@@ -19,6 +19,19 @@ const calcDaysLocal = (startBR: string, endBR: string): number => {
   } catch(e) { return 1; }
 };
 
+const calcEndDate = (startBR: string, days: number): string => {
+  if (!startBR) return '';
+  try {
+    const start = parseDateBR(startBR);
+    const end = new Date(start);
+    end.setDate(end.getDate() + days - 1);
+    const day = String(end.getDate()).padStart(2, '0');
+    const month = String(end.getMonth() + 1).padStart(2, '0');
+    const year = end.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch(e) { return ''; }
+};
+
 const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -48,6 +61,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     startDate: getCurrentDateFormatted(),
     endDate: '',
     notes: '',
+    modality: 'diaria' as 'diaria' | 'mensal',
+    rentalDays: 1,
   });
   const [offerDiscount, setOfferDiscount] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
@@ -75,7 +90,7 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
 
   const openAddForm = () => {
     setEditingRental(null);
-    setFormData({ clientId: '', machineId: '', startDate: getCurrentDateFormatted(), endDate: '', notes: '' });
+    setFormData({ clientId: '', machineId: '', startDate: getCurrentDateFormatted(), endDate: '', notes: '', modality: 'diaria', rentalDays: 1 });
     setOfferDiscount(false);
     setCustomAmount('');
     setIsFormOpen(true);
@@ -89,6 +104,8 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
       startDate: rental.startDate,
       endDate: rental.endDate,
       notes: rental.notes || '',
+      modality: rental.modality || 'diaria',
+      rentalDays: rental.totalDays || 1,
     });
     setOfferDiscount(!!rental.hasDiscount);
     setCustomAmount(rental.hasDiscount && rental.originalAmount !== rental.totalAmount
@@ -101,24 +118,14 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     e.preventDefault();
     setSubmitting(true);
 
-    if (formData.endDate) {
-      const start = parseDateBR(formData.startDate);
-      const end = parseDateBR(formData.endDate);
-      if (end < start) {
-        setSubmitting(false);
-        setFeedback({ message: 'A data de fim não pode ser anterior à data de início.', type: 'error' });
-        setTimeout(() => setFeedback(null), 5000);
-        return;
-      }
-    }
-
     const machine = editingRental
       ? machines.find((m) => m.id === formData.machineId) || { dailyRate: 0 }
       : machines.find((m) => m.id === formData.machineId);
     if (!machine && !editingRental) { setSubmitting(false); return; }
 
     const client = clients.find(c => c.id === formData.clientId);
-    const days = calcDaysLocal(formData.startDate, formData.endDate);
+    const days = formData.modality === 'mensal' ? 30 : formData.rentalDays;
+    const endDate = calcEndDate(formData.startDate, days);
     const calculatedAmount = days * ((machine as any)?.dailyRate || 0);
     const totalAmount = (offerDiscount && customAmount)
       ? parseFloat(customAmount.replace(/\D/g, '')) / 100
@@ -133,9 +140,10 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
       dailyRate: (machine as any)?.dailyRate || 0,
       totalDays: days,
       startDate: formData.startDate,
-      endDate: formData.endDate,
+      endDate,
       totalAmount,
       notes: formData.notes,
+      modality: formData.modality,
       hasDiscount: offerDiscount && totalAmount !== calculatedAmount,
       originalAmount: calculatedAmount,
     };
@@ -172,7 +180,7 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
     setSubmitting(false);
     setIsFormOpen(false);
     setEditingRental(null);
-    setFormData({ clientId: '', machineId: '', startDate: getCurrentDateFormatted(), endDate: '', notes: '' });
+    setFormData({ clientId: '', machineId: '', startDate: getCurrentDateFormatted(), endDate: '', notes: '', modality: 'diaria', rentalDays: 1 });
     setTimeout(() => setFeedback(null), 5000);
     loadData();
   };
@@ -249,15 +257,45 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input type="text" placeholder="Data Início (DD/MM/AAAA)" className="input-base" value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: maskDate(e.target.value) })} required />
-              <input type="text" placeholder="Data Fim (DD/MM/AAAA)" className="input-base" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: maskDate(e.target.value) })} required />
+              <div>
+                <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Modalidade</label>
+                <div className="flex gap-1 p-1 bg-neutral-100 dark:bg-secondary-700 rounded-lg">
+                  <button type="button" className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all ${formData.modality === 'diaria' ? 'bg-white dark:bg-secondary-500 text-secondary-500 dark:text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700'}`} onClick={() => setFormData({ ...formData, modality: 'diaria', rentalDays: formData.rentalDays || 1 })}>
+                    Diária
+                  </button>
+                  <button type="button" className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all ${formData.modality === 'mensal' ? 'bg-white dark:bg-secondary-500 text-secondary-500 dark:text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700'}`} onClick={() => setFormData({ ...formData, modality: 'mensal', rentalDays: 30 })}>
+                    Mensal
+                  </button>
+                </div>
+              </div>
             </div>
+
+            {formData.modality === 'diaria' && (
+              <div>
+                <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Quantidade de Dias</label>
+                <input type="number" min="1" className="input-base" value={formData.rentalDays} onChange={(e) => setFormData({ ...formData, rentalDays: Math.max(1, parseInt(e.target.value) || 1) })} />
+              </div>
+            )}
+
+            {formData.modality === 'mensal' && (
+              <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                <span className="font-medium text-secondary-500 dark:text-white">30 dias</span> (locação mensal)
+              </div>
+            )}
+
+            {formData.startDate && (
+              <div className="text-sm text-neutral-500 dark:text-neutral-400">
+                Data prevista de término: <strong>{calcEndDate(formData.startDate, formData.modality === 'mensal' ? 30 : formData.rentalDays)}</strong>
+              </div>
+            )}
+
             <textarea placeholder="Observações" className="input-base" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
 
-            {formData.machineId && formData.startDate && formData.endDate && (
+            {formData.machineId && formData.startDate && (
               <div className="bg-tertiary-100 dark:bg-secondary-700 p-4 rounded-lg space-y-3">
                 <div className="text-sm text-neutral-600 dark:text-neutral-300">
-                  Valor calculado: <strong>R$ {(calcDaysLocal(formData.startDate, formData.endDate) * (machines.find(m => m.id === formData.machineId)?.dailyRate || 0)).toFixed(2)}</strong>
-                  {' '}({calcDaysLocal(formData.startDate, formData.endDate)} dias x R$ {machines.find(m => m.id === formData.machineId)?.dailyRate?.toFixed(2) || '0.00'}/dia)
+                  Valor calculado: <strong>R$ {((formData.modality === 'mensal' ? 30 : formData.rentalDays) * (machines.find(m => m.id === formData.machineId)?.dailyRate || 0)).toFixed(2)}</strong>
+                  {' '}({formData.modality === 'mensal' ? 30 : formData.rentalDays} dias x R$ {machines.find(m => m.id === formData.machineId)?.dailyRate?.toFixed(2) || '0.00'}/dia)
                 </div>
                 <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300 cursor-pointer">
                   <input type="checkbox" checked={offerDiscount} onChange={(e) => setOfferDiscount(e.target.checked)} className="rounded border-neutral-400" />
@@ -304,7 +342,7 @@ const RentalsPage: React.FC<{ user: any }> = ({ user }) => {
                 <tr key={r.id}>
                   <td className="font-medium">{client?.name || 'Cliente Removido'}</td>
                   <td>{machine?.name || 'Máquina Removida'}</td>
-                  <td>{r.startDate} a {r.endDate}</td>
+                  <td>{r.startDate} a {r.endDate}{r.modality && <span className="ml-1 text-xs text-neutral-400">({r.modality === 'mensal' ? 'Mensal' : 'Diária'})</span>}</td>
                   <td>R$ {r.totalAmount?.toFixed(2) || '0.00'}</td>
                   <td>
                     <span className={`badge ${r.status === 'active' ? 'badge-warning' : r.status === 'completed' ? 'badge-success' : 'badge-danger'}`}>

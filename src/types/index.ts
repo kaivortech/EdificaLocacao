@@ -53,6 +53,7 @@ export interface Rental {
   machineType: string;
   startDate: string;   // DD/MM/AAAA
   endDate: string;     // DD/MM/AAAA
+  modality?: 'diaria' | 'mensal';
   dailyRate: number;
   totalDays: number;
   totalAmount: number;

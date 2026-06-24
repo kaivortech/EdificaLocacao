@@ -219,10 +219,13 @@ export const gerarPDFContratoLocacao = async (
     ? `R$ ${discountAmount.toFixed(2).replace('.', ',')}`
     : 'Nenhum';
 
+  const modalityLabel = rental.modality === 'mensal' ? 'Mensal (30 dias)' : `Diária (${rental.totalDays} dias)`;
+
   const ccHeaders = ['Campo', 'Valor'];
   const ccRows: string[][] = [
     ['Data Inicial', rental.startDate || ''],
     ['Devolução/Término', rental.endDate || ''],
+    ['Modalidade', modalityLabel],
     ['Forma de Cobrança', 'Acúmulo de Diárias'],
     ['Desconto Aplicado', discountStr],
     ['Valor Total Acumulado', `R$ ${rental.totalAmount.toFixed(2).replace('.', ',')}`],
